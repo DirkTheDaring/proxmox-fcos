@@ -1,0 +1,5 @@
+{% set netmask = item.netmask|default(fcos_netmask) %}
+{% if  netmask is number %}
+{% set netmask = netmask | cidr_to_netmask %}
+{% endif %}
+ip={{ item.ansible_host }}::{{ item.gateway }}:{{ netmask }}:{{ item.hostname| default(item.inventory_hostname) }}:{{ iface| default('eth0') }}:none:{{ fcos_nameservers[0] }}:{{ fcos_nameservers[1] }}

@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+set -e
+{% for item in fcos_flash_list %}
+qm stop {{ item.kvm_id }}
+cat "{{ fcos_root_dir }}/{{ fcos_filename }}"| xz -d >"{{ proxmox[item.kvm_id].scsi0_path }}"
+cd "{{ fcos_tmp_dir }}/{{item.kvm_id}}"
+DEV=$(losetup --partscan --show --find "{{ proxmox[item.kvm_id].scsi0_path }}")
+if [ -e "${DEV}p1" ]; then
+  mkdir -p mnt
+  mount "${DEV}p1" mnt
+  mkdir -p      mnt/ignition/
+  cp config.ign mnt/ignition/
+  cp ignition.firstboot mnt/
+  umount mnt
+fi
+losetup --detach "$DEV"
+qm start {{ item.kvm_id }}
+#########################
+{% endfor %}

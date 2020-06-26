@@ -1,0 +1,30 @@
+# Download
+# fcct and baremetal image
+- name: Create the download directory if it does not exist
+  file:
+    path:  "{{ fcos_bin_dir }}"
+    state: directory
+    mode: '0755'
+
+# Dirty catch if "dest" is a directory, the file will ALWAYS be downloaded
+- name: download image if it doesn't exist or checksum does not match
+  get_url:
+    url:      "{{ fcos_fcct_download_url }}"
+    dest:     "{{ fcos_bin_dir }}/{{ fcos_fcct_filename }}"
+    force:    "no"
+    mode:     "0755"
+
+- name: Create the download directory if it does not exist
+  file:
+    path:  "{{ fcos_root_dir }}"
+    state: directory
+    mode:  '0755'
+
+# Dirty catch if "dest" is a directory, the file will ALWAYS be downloaded
+- name: download image if it doesn't exist or checksum does not match
+  get_url:
+    url:      "{{ fcos_download_url }}"
+    dest:     "{{ fcos_root_dir }}/{{ fcos_filename }}"
+    checksum: "{{ fcos_download_checksum }}"
+    force:    "no"
+
