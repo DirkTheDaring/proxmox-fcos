@@ -5,7 +5,7 @@ fcos_download_url: ""
 fcos_root_dir: "/ftp/pub/linux/fcos"
 fcos_bin_dir:  "/ftp/pub/linux/fcos"
 
-fcos_ssh_authorized_keys_dir: "sshkeys"
+fcos_sshkeys_dir: "sshkeys"
 fcos_sshkeys: []
 
 fcos_cacerts_dir: "cacerts"
@@ -44,11 +44,11 @@ fcos_nameservers:
 fcos_netmask: 24
 fcos_ssh_authorized_keys: []
 
-#search: []
-search:
-- fritz.box
-- prod.fritz.box
-- dev.fritz.box
-- ops.fritz.box
+search: []
+#search:
+#- fritz.box
+#- prod.fritz.box
+#- dev.fritz.box
+#- ops.fritz.box
 
 fcos_override_sysconfig_docker: True

@@ -10,7 +10,7 @@
 #
 
 - name: list 
-  debug: msg={{ fcos_ssh_authorized_keys_dir + '/*.pub'  }}
+  debug: msg={{ fcos_sshkeys_dir + '/*.pub'  }}
 
 #- name: list 
 #  set_fact:
@@ -23,7 +23,7 @@
   set_fact: 
     # default has sshkeys defined as emtpy list
     fcos_sshkeys: "{{ fcos_sshkeys + [ lookup('file', item) ] }}"
-  loop: "{{ lookup('fileglob', fcos_ssh_authorized_keys_dir + '/*.pub', wantlist=True ) }}"
+  loop: "{{ lookup('fileglob', fcos_sshkeys_dir + '/*.pub', wantlist=True ) }}"
 
 - name:
   debug: msg={{ fcos_sshkeys }}

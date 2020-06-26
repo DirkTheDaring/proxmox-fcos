@@ -2,7 +2,16 @@
 set -e
 {% for item in fcos_flash_list %}
 qm stop {{ item.kvm_id }}
-cat "{{ fcos_root_dir }}/{{ fcos_filename }}"| xz -d >"{{ proxmox[item.kvm_id].scsi0_path }}"
+# sometimes due to a kernel bug the device disappears
+lvm lvchange -aly "{{ proxmox[item.kvm_id].scsi0_path }}"
+
+# yes this did happen
+if [ ! -e "{{ proxmox[item.kvm_id].scsi0_path }}" ]; then
+  echo "does not exist: {{ proxmox[item.kvm_id].scsi0_path }}"
+  exit 1
+fi
+
+xz -dc "{{ fcos_root_dir }}/{{ fcos_filename }}"|dd of="{{ proxmox[item.kvm_id].scsi0_path }}"
 cd "{{ fcos_tmp_dir }}/{{item.kvm_id}}"
 DEV=$(losetup --partscan --show --find "{{ proxmox[item.kvm_id].scsi0_path }}")
 if [ -e "${DEV}p1" ]; then
@@ -14,6 +23,8 @@ if [ -e "${DEV}p1" ]; then
   umount mnt
 fi
 losetup --detach "$DEV"
+# wait umount to complete async
+sleep 3
 qm start {{ item.kvm_id }}
 #########################
 {% endfor %}
