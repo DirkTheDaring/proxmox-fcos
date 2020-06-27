@@ -42,14 +42,14 @@ systemd:
       WantedBy=multi-user.target
 
 {% if 'scsi1_path' in proxmox[item.kvm_id] %}
-  - name: srv-data.mount
+  - name: var-srv-data.mount
     enable: true
     contents: |
       [Unit]
       Before=local-fs.target
       [Mount]
       What=/dev/sdb
-      Where=/srv/data
+      Where=/var/srv/data
       Type=xfs
       [Install]
       WantedBy=local-fs.target
