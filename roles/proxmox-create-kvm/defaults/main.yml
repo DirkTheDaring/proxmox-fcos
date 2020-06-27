@@ -1,0 +1,4 @@
+proxmox_create_kvm_list: []
+
+proxmox_create_kvm_tmp_dir: "/tmp/proxmox_create_kvm"
+

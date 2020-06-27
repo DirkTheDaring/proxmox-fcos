@@ -2,4 +2,5 @@
 - hosts:
   - proxmox
   roles:
-  - fcos
+  - proxmox-create-kvm
+  - proxmox-flash-fcos
