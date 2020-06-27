@@ -41,6 +41,20 @@ systemd:
       [Install]
       WantedBy=multi-user.target
 
+{% if 'scsi1_path' in proxmox[item.kvm_id] %}
+  - name: srv-data.mount
+    enable: true
+    contents: |
+      [Unit]
+      Before=local-fs.target
+      [Mount]
+      What=/dev/sdb
+      Where=/srv/data
+      Type=xfs
+      [Install]
+      WantedBy=local-fs.target
+{% endif %}
+
 storage:
   files:
   - path: /etc/resolv.conf
