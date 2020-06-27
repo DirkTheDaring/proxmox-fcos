@@ -29,7 +29,7 @@ systemd:
     contents: |
       [Unit]
       Requires=network-online.target
-      After=network-online.target
+      After=network-online.target NetworkManager.service
       Before=sshd.service  # run before a user can login
       [Service]
       Type=oneshot
@@ -43,7 +43,7 @@ systemd:
 
 {% if 'scsi1_path' in proxmox[item.kvm_id] %}
   - name: var-srv-data.mount
-    enable: true
+    enabled: true
     contents: |
       [Unit]
       Before=local-fs.target
