@@ -48,6 +48,9 @@ class QMCONFIG:
        for item in array:
          key,val = item.split("=")
          sub_dict[key]=val
+       
+       if url == 'none':
+           continue
 
        volume, disk = url.split(":")
        if volume in lookup:
