@@ -1,0 +1,19 @@
+- name: 
+  set_fact:
+    kvm_id_list:  "{{ kvm_id_list|default([]) + [ item.value.kvm_id ] }}"
+    ansible_host_list: "{{ ansible_host_list|default([]) + [ item.value.ansible_host ] }}"
+  loop: "{{ lookup('dict',  hostvars)  }}"
+  when: "'kvm_id' in item.value"
+
+- name: kvm_id must be unique for every host
+  assert: 
+    that:
+      - "{{ kvm_id_list|duplicate|length == 0 }}"
+    msg: "hosts do not have a unique kvm_id: {{ kvm_id_list|duplicate }}"
+
+- name: ansible_host  must be unique for every host
+  assert:
+    that:
+      - "{{ ansible_host_list|duplicate|length == 0 }}"
+    msg: "hosts do not have a unique ip address in  ansible_host: {{ ansible_host_list|duplicate }}"
+

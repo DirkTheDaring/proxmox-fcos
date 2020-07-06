@@ -88,6 +88,6 @@
     dest: "{{ fcos_tmp_dir }}/bin/flash"
     mode: '0755'
 
-- name: execute flashing
+- name: execute flash script
   command: "{{ fcos_tmp_dir }}/bin/flash"
 

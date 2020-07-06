@@ -1,0 +1,22 @@
+# check if hosts are available
+# check if scripts for software install has run already
+# continous run it on hosts where the install failed until success ... or 10 retry has failed.
+# check if it has successfully run again for 10 seconds
+
+# https://stackoverflow.com/questions/39800368/test-if-a-server-is-reachable-from-host-and-has-port-open-with-ansible
+- wait_for: 
+    host:    remote.host
+    port:    8080
+    timeout: 30
+  retries: 10  # 30 * 10 = 300 secs = 5 Minutes
+  register: result
+  until:    result.rc == 0
+
+
+# https://stackoverflow.com/questions/44134642/how-to-retry-ansible-task-that-may-fail
+- command: /usr/bin/false
+  retries: 3
+  delay: 3
+  register: result
+  until: result.rc == 0
+
