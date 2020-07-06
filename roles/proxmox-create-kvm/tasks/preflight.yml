@@ -1,9 +1,17 @@
-- name: 
+- name: create list of kvm_id(s) and a list of ansible_host(s)
   set_fact:
     kvm_id_list:  "{{ kvm_id_list|default([]) + [ item.value.kvm_id ] }}"
     ansible_host_list: "{{ ansible_host_list|default([]) + [ item.value.ansible_host ] }}"
   loop: "{{ lookup('dict',  hostvars)  }}"
   when: "'kvm_id' in item.value"
+  no_log: True
+
+- name: create a list mac_address(es)
+  set_fact:
+    mac_address_list:  "{{ mac_address_list|default([]) + [ item.value.mac_address ] }}"
+  loop: "{{ lookup('dict',  hostvars) }}"
+  when: "'mac_address' in item.value"
+  no_log: True
 
 - name: kvm_id must be unique for every host
   assert: 
@@ -11,9 +19,14 @@
       - "{{ kvm_id_list|duplicate|length == 0 }}"
     msg: "hosts do not have a unique kvm_id: {{ kvm_id_list|duplicate }}"
 
-- name: ansible_host  must be unique for every host
+- name: ansible_host must be unique for every host
   assert:
     that:
       - "{{ ansible_host_list|duplicate|length == 0 }}"
     msg: "hosts do not have a unique ip address in  ansible_host: {{ ansible_host_list|duplicate }}"
 
+- name: mac_address must be unique for every host
+  assert:
+    that:
+      - "{{ mac_address_list|duplicate|length == 0 }}"
+    msg: "hosts do not have a unique mac address in mac_address: {{ mac_address_list|duplicate }}"
