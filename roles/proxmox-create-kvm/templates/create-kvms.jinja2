@@ -9,9 +9,10 @@ else
 {% set memory  = item.memory |default(2048) %}
 {% set balloon = item.balloon|default(memory/2)|int %}
 {% set cores   = item.cores  |default(2) %}
-{% set storage_name = item.default_storage_name |default('local-lvm') %}
+{% set storage_name = default_storage_name |default('local-lvm') %}
 {% set storage_size = 3 %}
 {% set disk0 = item.disk0|default(storage_size)|string %}
+{% set disk1 = item.disk1|default(storage_size)|string %}
 {% set disk2 = item.disk2|default(storage_size)|string %}
 {% set disk3 = item.disk3|default(storage_size)|string %}
 {% set scsi0 = disk0 if ':' in disk0 else storage_name + ':' + disk0 %}
