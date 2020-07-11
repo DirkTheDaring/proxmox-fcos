@@ -5,7 +5,7 @@ set -e
 if [ -f "/etc/pve/qemu-server/{{ item.kvm_id }}.conf" ]; then
   echo "Skipping {{ item.kvm_id }}: config exists"
 else 
-{% set onboot  = item.onboot |default(0) %}
+{% set onboot  = item.onboot |default(1) %}
 {% set memory  = item.memory |default(2048) %}
 {% set balloon = item.balloon|default(memory/2)|int %}
 {% set cores   = item.cores  |default(2) %}

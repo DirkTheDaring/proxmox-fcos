@@ -34,7 +34,7 @@ systemd:
       [Service]
       Type=oneshot
       ExecCondition=/usr/bin/test ! -f /etc/package-installer.done
-      ExecStart=/usr/bin/rpm-ostree install {{ fcos_install_packages | join(" ") }}
+      ExecStart=/usr/bin/rpm-ostree install {{ item.fcos_install_packages|default(fcos_install_packages) | join(" ") }}
       ExecStartPost=/usr/bin/touch /etc/package-installer.done
       ExecStartPost=/usr/sbin/shutdown -r now
 
