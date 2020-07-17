@@ -14,6 +14,9 @@ fcos_cacerts: []
 fcos_flash_list: []
 fcos_tmp_dir: "/tmp/fcos"
 
+#fcos_default_network_device: ens18
+fcos_default_network_device: eth0
+
 # Additional packages to install
 fcos_install_packages: 
 - audit

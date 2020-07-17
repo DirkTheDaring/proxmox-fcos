@@ -14,6 +14,9 @@ passwd:
     - docker
 systemd:
   units:
+  - name: zincati.service
+    mask: true
+
   - name: update-ca-trust.service
     enabled: true
     contents: |
@@ -88,7 +91,7 @@ storage:
       inline: |
         {{ item.hostname | default(item.inventory_hostname) }}
 
-  - path: /etc/NetworkManager/system-connections/eth0.nmconnection
+  - path: /etc/NetworkManager/system-connections/{{ fcos_default_network_device }}.nmconnection
     user:
       name: root
     group:
@@ -99,7 +102,7 @@ storage:
       inline: |
         [connection]
         type=ethernet
-        interface-name={{ item.network_interface |default('eth0') }}
+        interface-name={{ item.network_interface |default( fcos_default_network_device ) }}
 
         [ethernet]
         mac-address={{ proxmox[item.kvm_id].mac_address }}
@@ -145,4 +148,3 @@ storage:
       inline: |
 {{ item.content |indent(8,true) }}
 {% endfor %}
-
