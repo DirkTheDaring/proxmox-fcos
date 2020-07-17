@@ -1,6 +1,6 @@
 - name: create list of kvm_id(s) and a list of ansible_host(s)
   set_fact:
-    kvm_id_list:  "{{ kvm_id_list|default([]) + [ item.value.kvm_id ] }}"
+    kvm_id_list:  "{{ kvm_id_list + [ item.value.kvm_id ] }}"
     ansible_host_list: "{{ ansible_host_list|default([]) + [ item.value.ansible_host ] }}"
   loop: "{{ lookup('dict',  hostvars)  }}"
   when: "'kvm_id' in item.value"
