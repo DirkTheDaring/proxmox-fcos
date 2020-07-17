@@ -8,7 +8,7 @@
 
 - name: create a list mac_address(es)
   set_fact:
-    mac_address_list:  "{{ mac_address_list|default([]) + [ item.value.mac_address ] }}"
+    mac_address_list:  "{{ mac_address_list + [ item.value.mac_address ] }}"
   loop: "{{ lookup('dict',  hostvars) }}"
   when: "'mac_address' in item.value"
   no_log: True
