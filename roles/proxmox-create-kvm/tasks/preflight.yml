@@ -22,7 +22,7 @@
 - name: ansible_host must be unique for every host
   assert:
     that:
-      - "{{ ansible_host_list|duplicate|length == 0 }}"
+    - "{{ ansible_host_list|duplicate|length == 0 }}"
     msg: "hosts do not have a unique ip address in  ansible_host: {{ ansible_host_list|duplicate }}"
 
 - name: mac_address must be unique for every host
