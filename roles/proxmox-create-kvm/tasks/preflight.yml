@@ -25,8 +25,8 @@
       - "{{ ansible_host_list|duplicate|length == 0 }}"
     msg: "hosts do not have a unique ip address in  ansible_host: {{ ansible_host_list|duplicate }}"
 
-#- name: mac_address must be unique for every host
-#  assert:
-#    that:
-#      - "{{ mac_address_list|duplicate|length == 0 }}"
-#    msg: "hosts do not have a unique mac address in mac_address: {{ mac_address_list|duplicate }}"
+- name: mac_address must be unique for every host
+  assert:
+    that:
+    - "{{ mac_address_list|duplicate|length == 0 }}"
+    msg: "hosts do not have a unique mac address in mac_address: {{ mac_address_list|duplicate }}"
