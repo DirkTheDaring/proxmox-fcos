@@ -1,4 +1,4 @@
-#- name: create temporary directory 
+#- name: create temporary directory
 #  tempfile:
 #    state:  directory
 #    suffix: build
@@ -9,10 +9,10 @@
 #
 #
 
-- name: list 
+- name: list
   debug: msg={{ fcos_sshkeys_dir + '/*.pub'  }}
 
-#- name: list 
+#- name: list
 #  set_fact:
 #    ssh_authorized_keys_files: "{{ lookup('fileglob', fcos_ssh_authorized_keys_dir + '/*.pub', wantlist=True ) }}"
 
@@ -20,7 +20,7 @@
 #  debug: msg={{ ssh_authorized_keys_files }}
 
 - name:
-  set_fact: 
+  set_fact:
     # default has sshkeys defined as emtpy list
     fcos_sshkeys: "{{ fcos_sshkeys + [ lookup('file', item) ] }}"
   loop: "{{ lookup('fileglob', fcos_sshkeys_dir + '/*.pub', wantlist=True ) }}"
@@ -28,7 +28,7 @@
 - name:
   debug: msg={{ fcos_sshkeys }}
 
-- name: list 
+- name: list
   debug: msg={{ fcos_cacerts_dir + '/*.crt'  }}
 
 #- name:  run through groups
@@ -41,7 +41,7 @@
 #
 
 - name:  run through groups
-  debug: 
+  debug:
     msg: "{{ hostvars[groups['fedora_coreos'][0]] }}"
 
 #- name:  run through groups

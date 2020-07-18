@@ -4,7 +4,7 @@
 # check if it has successfully run again for 10 seconds
 
 # https://stackoverflow.com/questions/39800368/test-if-a-server-is-reachable-from-host-and-has-port-open-with-ansible
-- wait_for: 
+- wait_for:
     host:    remote.host
     port:    8080
     timeout: 30

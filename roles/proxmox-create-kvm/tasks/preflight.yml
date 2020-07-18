@@ -1,6 +1,6 @@
 
 # There is a mean co-notation, when you provide with -e the flash_variable, it has the highest priority, so regardless, if you try
-# to overrwirte it here, it will always be higher in priority, therefor no changes 
+# to overrwirte it here, it will always be higher in priority, therefor no changes
 - set_fact:
     # convert comma separated string to list and remove empty list items
     flash_list_processed: "{{ [] if (flash_list is not defined or flash_list == '') else (flash_list.split(',')|map('trim')|reject('equalto','')| list) }}"
@@ -31,7 +31,7 @@
   no_log: True
 
 - name: kvm_id must be unique for every host
-  assert: 
+  assert:
     that:
       - "{{ kvm_id_list|duplicate|length == 0 }}"
     msg: "hosts do not have a unique kvm_id: {{ kvm_id_list|duplicate }}"

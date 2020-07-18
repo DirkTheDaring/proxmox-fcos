@@ -18,11 +18,11 @@ fcos_tmp_dir: "/tmp/fcos"
 fcos_default_network_device: eth0
 
 # Additional packages to install
-fcos_install_packages: 
+fcos_install_packages:
 - audit
 - python3
 - pip
-- libselinux-python3 
+- libselinux-python3
 - ethtool
 - ipset
 #- dbus-tools
@@ -41,7 +41,7 @@ fcos_machines: []
 #  gateway: 192.168.178.1
 
 #fcos_nameservers: []
-fcos_nameservers: 
+fcos_nameservers:
 - 192.168.178.1
 - 192.168.178.3
 fcos_netmask: 24
