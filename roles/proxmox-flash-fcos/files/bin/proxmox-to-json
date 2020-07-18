@@ -32,12 +32,13 @@ class QMCONFIG:
   def parse(self, fd, my_dict, lookup):
    re_mac = re.compile(r'^net[0-9]+:.*([0-9A-F]{2,2}(:[0-9A-F]{2,2}){5,5})')
    re_drives = re.compile(r'^(scsi[0-9]+|ide[0-9]+|sata[0-9]+):[ |\t]+(.*)')
-
+   mac_i=0
    for line in fd:
      mo = re_mac.search(line)
      if mo:
        mac = mo.groups()[0]
-       my_dict['mac_address'] = mac.lower()
+       my_dict['macaddr'+str(mac_i)] = mac.lower()
+       mac_i = mac_i + 1
 
      mo = re_drives.search(line)
      if mo:
@@ -48,7 +49,7 @@ class QMCONFIG:
        for item in array:
          key,val = item.split("=")
          sub_dict[key]=val
-       
+
        if url == 'none':
            continue
 
