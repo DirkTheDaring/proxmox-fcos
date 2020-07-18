@@ -1,22 +1,22 @@
 - name: validate channel name global
-  assert: 
+  assert:
     that: "fcos_channel in [ 'stable', 'next', 'testing' ]"
     msg: "failed assert"
 
 - debug:
-    msg: "{{ groups['dynamic_flash_group'] if 'dynamic_flash_group' in groups else [] }}"
+    msg: "{{ groups['dynamic_fcos_flash_group'] if 'dynamic_fcos_flash_group' in groups else [] }}"
 
 - debug:
     msg: "{{ hostvars[item].fcos_channel }}"
   when:  "'fcos_channel' in hostvars[item]"
-  loop:  "{{ groups['dynamic_flash_group'] if 'dynamic_flash_group' in groups else [] }}"
+  loop:  "{{ groups['dynamic_fcos_flash_group'] if 'dynamic_fcos_flash_group' in groups else [] }}"
 
 - name: validate channel name per host
-  assert: 
+  assert:
     that: "hostvars[item].fcos_channel in [ 'stable', 'next', 'testing' ]"
     msg: "variable fcos_channel in host {{ item }} is set to {{ hostvars[item].fcos_channel }}  which is none of the valid channels (stable,next,testing)"
   when: "'fcos_channel' in hostvars[item]"
-  loop:  "{{ groups['dynamic_flash_group'] if 'dynamic_flash_group' in groups else [] }}"
+  loop:  "{{ groups['dynamic_fcos_flash_group'] if 'dynamic_fcos_flash_group' in groups else [] }}"
 
 
 # The official stream is generated
@@ -32,7 +32,7 @@
 # Issues with json parsing --> you need to_json|from_json
 # see https://github.com/ansible/ansible/issues/27299
 
-# Hint: 
+# Hint:
 # jq -r '.architectures.x86_64.artifacts.metal.formats["raw.xz"].disk.location'
 - set_fact:
     fcos_latest_coreos_download_url:      "{{ fcos_streams.json|to_json| from_json |json_query('architectures.x86_64.artifacts.metal.formats.\"raw.xz\".disk.location') }}"
@@ -45,7 +45,7 @@
 
 - debug:
     msg:  "latest coreos: {{ fcos_latest_coreos_filename }}"
- 
+
 # Dirty catch if "dest" is a directory, the file will ALWAYS be downloaded
 # Therefore it needs to be path to a FILE
 - name: download image if it doesn't exist or checksum does not match
@@ -59,7 +59,7 @@
     msg:  "https://builds.coreos.fedoraproject.org/prod/streams/{{ hostvars[item].fcos_channel if 'fcos_channel' in hostvars else fcos_channel }}/builds/{{ hostvars[item].fcos_version }}/x86_64/fedora-coreos-{{ hostvars[item].fcos_version }}-metal.x86_64.raw.xz"
 
   when: "'fcos_channel' in hostvars[item] and 'fcos_version' in hostvars[item]"
-  loop: "{{ groups['dynamic_flash_group'] if 'dynamic_flash_group' in groups else [] }}"
+  loop: "{{ groups['dynamic_fcos_flash_group'] if 'dynamic_fcos_flash_group' in groups else [] }}"
 
 # Format
 # https://builds.coreos.fedoraproject.org/prod/streams/stable/builds/32.20200629.3.0/x86_64/fedora-coreos-32.20200629.3.0-metal.x86_64.raw.xz
@@ -70,7 +70,7 @@
     dest:     "{{ fcos_root_dir }}/fedora-coreos-{{ hostvars[item].fcos_version }}-metal.x86_64.raw.xz"
     force:    "no"
   when: "'fcos_channel' in hostvars[item] and 'fcos_version' in hostvars[item]"
-  loop: "{{ groups['dynamic_flash_group'] if 'dynamic_flash_group' in groups else [] }}"
+  loop: "{{ groups['dynamic_fcos_flash_group'] if 'dynamic_fcos_flash_group' in groups else [] }}"
 
 #
 #- set_fact:

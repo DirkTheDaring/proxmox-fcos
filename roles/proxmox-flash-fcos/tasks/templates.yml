@@ -31,18 +31,18 @@
     path:  "{{ fcos_tmp_dir }}/{{ hostvars[item].kvm_id }}"
     state: directory
     mode: '0755'
-  loop: "{{ groups['dynamic_flash_group'] if 'dynamic_flash_group' in groups else [] }}"
+  loop: "{{ groups['dynamic_fcos_flash_group'] if 'dynamic_fcos_flash_group' in groups else [] }}"
 
 - name: Create config file for fcct compiler
   template:
     src:  'config.yaml.jinja2'
     dest: "{{ fcos_tmp_dir }}/{{ hostvars[item].kvm_id }}/config.yaml"
     mode: '0644'
-  loop: "{{ groups['dynamic_flash_group'] if 'dynamic_flash_group' in groups else [] }}"
+  loop: "{{ groups['dynamic_fcos_flash_group'] if 'dynamic_fcos_flash_group' in groups else [] }}"
 
 - name:     create ignition config from fcct yaml file
   command:  "bash -c '{{ fcos_bin_dir }}/{{ fcos_fcct_filename }} <{{ fcos_tmp_dir }}/{{ hostvars[item].kvm_id }}/config.yaml >{{ fcos_tmp_dir }}/{{ hostvars[item].kvm_id }}/config.ign'"
-  loop: "{{ groups['dynamic_flash_group'] if 'dynamic_flash_group' in groups else [] }}"
+  loop: "{{ groups['dynamic_fcos_flash_group'] if 'dynamic_fcos_flash_group' in groups else [] }}"
   register: result
 
 - name: Create config file for fcct compiler
@@ -50,7 +50,7 @@
     src:  'ignition-firstboot.jinja2'
     dest: "{{ fcos_tmp_dir }}/{{ hostvars[item].kvm_id }}/ignition.firstboot"
     mode: '0644'
-  loop: "{{ groups['dynamic_flash_group'] if 'dynamic_flash_group' in groups else [] }}"
+  loop: "{{ groups['dynamic_fcos_flash_group'] if 'dynamic_fcos_flash_group' in groups else [] }}"
   register: result
 
 - name: Create flash install script

@@ -85,8 +85,7 @@
   when: "'flash' in hostvars[item] and hostvars[item].flash is boolean and hostvars[item].flash"
   loop: "{{ groups['dynamic_kvm_group'] if 'dynamic_kvm_group' in groups else [] }}"
 
-
-- name: create group for hosts with existing kvm_id and flash=True
+- name: add hosts from flash_list to dynamic_flash_group
   add_host:
     name:  "{{ item }}"
     groups: dynamic_flash_group

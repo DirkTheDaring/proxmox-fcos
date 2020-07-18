@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -e
-{% set machine_list =  groups['dynamic_flash_group'] if 'dynamic_flash_group' in groups else []  %}
+{% set machine_list =  groups['dynamic_fcos_flash_group'] if 'dynamic_fcos_flash_group' in groups else []  %}
 
 {% for machine in machine_list %}
 {% set item  = hostvars[machine]  %}
