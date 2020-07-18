@@ -1,0 +1,5 @@
+- set_fact:
+    # convert comma separated string to list and remove empty list items
+    flash_list_processed: "{{ [] if (flash_list is not defined or flash_list == '') else (flash_list.split(',')|map('trim')|reject('equalto','')| list) }}"
+
+

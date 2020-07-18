@@ -42,8 +42,8 @@
 # see https://github.com/ansible/ansible/issues/27299
 
 - set_fact:
-  #    fcos_download_url: "https://builds.coreos.fedoraproject.org/prod/streams/stable/builds/32.20200629.3.0/x86_64/fedora-coreos-32.20200615.3.0-metal.x86_64.raw.xz"
-  #    fcos_download_checksum: "sha256:ba6777955d9ce8cb80e7beff0c2a5feb975871646cc9553bb5b26d710ac52630"
+#  fcos_download_url: "https://builds.coreos.fedoraproject.org/prod/streams/stable/builds/32.20200629.3.0/x86_64/fedora-coreos-32.20200615.3.0-metal.x86_64.raw.xz"
+#  fcos_download_checksum: "sha256:ba6777955d9ce8cb80e7beff0c2a5feb975871646cc9553bb5b26d710ac52630"
     fcos_download_url: "https://builds.coreos.fedoraproject.org/prod/streams/stable/builds/32.20200629.3.0/x86_64/fedora-coreos-32.20200601.3.0-metal.x86_64.raw.xz"
     fcos_download_checksum: "sha256:6be1a68be00d889d91f1de10c98ff1af72acb4c97ec969ce38af4c477a0ef757"
 

@@ -1,3 +1,20 @@
+
+# There is a mean co-notation, when you provide with -e the flash_variable, it has the highest priority, so regardless, if you try
+# to overrwirte it here, it will always be higher in priority, therefor no changes 
+- set_fact:
+    # convert comma separated string to list and remove empty list items
+    flash_list_processed: "{{ [] if (flash_list is not defined or flash_list == '') else (flash_list.split(',')|map('trim')|reject('equalto','')| list) }}"
+
+#- debug:
+#    msg: "{{ [] if (flash_list is not defined or flash_list == '') else flash_list.split(',')|map('trim')|reject('equalto','')|list }}"
+
+#- debug:
+#    msg: "{{ flash_list_processed }}"
+
+#- debug:
+#    msg: "{{ item }}"
+#  loop: "{{ flash_list_processed }}"
+
 - name: create list of kvm_id(s) and a list of ansible_host(s)
   set_fact:
     kvm_id_list:  "{{ kvm_id_list + [ item.value.kvm_id ] }}"
@@ -30,3 +47,5 @@
     that:
     - "{{ mac_address_list|duplicate|length == 0 }}"
     msg: "hosts do not have a unique mac address in mac_address: {{ mac_address_list|duplicate }}"
+
+

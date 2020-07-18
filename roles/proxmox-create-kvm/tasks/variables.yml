@@ -8,7 +8,7 @@
 #  fcos_fcct_download_url  fcct down load url
 #  fcos_fcct_filename      fcct filename
 #
-#  proxmox                 contains mac_address and real path to drivee
+#  proxmox                 contains mac_address and real path to drive
 
 
 - name: create proxmox_create_kvm_list

@@ -21,10 +21,10 @@
     mode:  '0755'
 
 # Dirty catch if "dest" is a directory, the file will ALWAYS be downloaded
+# Therefore it needs to be path to a FILE
 - name: download image if it doesn't exist or checksum does not match
   get_url:
     url:      "{{ fcos_download_url }}"
     dest:     "{{ fcos_root_dir }}/{{ fcos_filename }}"
     checksum: "{{ fcos_download_checksum }}"
     force:    "no"
-

@@ -1,3 +1,4 @@
+- import_tasks: "preflight.yml"
 - import_tasks: "variables.yml"
 - import_tasks: "download.yml"
 - import_tasks: "templates.yml"
