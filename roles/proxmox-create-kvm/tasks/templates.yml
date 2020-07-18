@@ -4,5 +4,5 @@
     dest: "{{ proxmox_create_kvm_tmp_dir }}/bin/create-kvms"
     mode: '0755'
 
-- name: execute kvm creator script
-  command: "{{ proxmox_create_kvm_tmp_dir }}/bin/create-kvms"
+#- name: execute kvm creator script
+#  command: "{{ proxmox_create_kvm_tmp_dir }}/bin/create-kvms"

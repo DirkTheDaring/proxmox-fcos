@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -e
-{% for item in proxmox_create_kvm_list %}
+{% for machine in groups['dynamic_kvm_group'] %}
+{% set item  = hostvars[machine]  %}
 
 if [ -f "/etc/pve/qemu-server/{{ item.kvm_id }}.conf" ]; then
   echo "Skipping {{ item.kvm_id }}: config exists"
@@ -38,14 +39,21 @@ else
   --scsi3   {{ disk3 if ':' in disk3 else storage_name + ':' + disk3 }}\
 {% endif  %}
   --scsihw  virtio-scsi-pci\
-{% if 'mac_address' in item %}
-  --net0    virtio={{ item.mac_address|upper }},bridge=vmbr0\
+{% if 'macaddr0' in item %}
+  --net0    virtio={{ item.macaddr0|upper }},bridge=vmbr0\
 {% else  %}
   --net0    virtio,bridge=vmbr0\
 {% endif  %}
+{% if 'bridge1' in item %}
+{% if 'macaddr1' in item %}
+  --net1    virtio={{ item.macaddr1|upper }},bridge={{ item.bridge1 }}\
+{% else  %}
+  --net1    virtio,bridge={{ item.bridge1 }}\
+{% endif  %}
+{% endif  %}
 
 {% if 'disk1' in item %}
-  # only afer a qm create with a previously non existing conf we can 
+  # only after a qm create with a previously non existing conf we can 
   # safely assume that we can format the second disk 
   DEV=$(grep -oP 'scsi1: \K[^,]*' /etc/pve/qemu-server/{{item.kvm_id}}.conf|xargs pvesm path)
   if [ -n "$DEV" ]; then

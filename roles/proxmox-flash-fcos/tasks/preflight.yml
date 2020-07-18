@@ -1,5 +1,99 @@
+# There is a mean co-notation, when you provide with -e the flash_variable, it has the highest priority, so regardless, if you try
+# to overrwirte it here, it will always be higher in priority, therefor no changes
 - set_fact:
     # convert comma separated string to list and remove empty list items
-    flash_list_processed: "{{ [] if (flash_list is not defined or flash_list == '') else (flash_list.split(',')|map('trim')|reject('equalto','')| list) }}"
+    flash_list_processed: "{{ flash_list_processed if flash_list_processed is defined else [] + (flash_list.split(',')|map('trim')|reject('equalto','')| list)  }}"
 
+- name: assert that hosts given in "flash_list" are existing
+  assert:
+    that:
+    - "{{ item in hostvars }}"
+    msg: "host {{ item }} provided by flash_list does not exist in inventory"
+  loop: "{{ flash_list_processed }}"
+
+- name: assert that hosts in  "flash_list"  have a kvm_id
+  debug:
+    msg: "{{ 'kvm_id' in hostvars[item] }}"
+  loop: "{{ flash_list_processed }}"
+
+- name: assert that kvm_host refers to an existing host
+  assert:
+    that:
+    - "{{ hostvars[item].kvm_host in hostvars }}"
+    msg: "kvm_host {{ hostvars[item].kvm_host }} referenced in host {{ item }} does not exist"
+  when: "'kvm_host' in hostvars[item]"
+  loop: "{{ groups['all'] }}"
+
+- name: assert that kvm_id is a number
+  assert:
+    that:
+    - "{{ hostvars[item].kvm_id|int is number }}"
+    msg: "kvm_id is not a number in host {{ item }}"
+  when: "'kvm_id' in hostvars[item]"
+  loop: "{{ groups['all'] }}"
+
+- name: assert that flash is a boolean
+  assert:
+    that:
+    - "{{ hostvars[item].flash is boolean }}"
+    msg: "flash is not a boolean in host {{ item }}"
+  when: "'flash' in hostvars[item]"
+  loop: "{{ groups['all'] }}"
+
+- name: create group for hosts with kvm_id
+  add_host:
+    name:  "{{ item }}"
+    groups: dynamic_kvm_group
+  when: "'kvm_id' in hostvars[item] and hostvars[item].kvm_id|int is number"
+  loop: "{{ groups['all'] }}"
+
+
+- name: create list of kvm_id(s) and a list of ansible_host(s)
+  set_fact:
+    kvm_id_list:       "{{ kvm_id_list       + [ hostvars[item].kvm_id       ] }}"
+    ansible_host_list: "{{ ansible_host_list + [ hostvars[item].ansible_host ] }}"
+  loop: "{{ groups['dynamic_kvm_group'] if 'dynamic_kvm_group' in groups else [] }}"
+
+- name: kvm_id must be unique for every host
+  assert:
+    that:
+    - "{{ kvm_id_list|duplicate|length == 0 }}"
+    msg: "hosts do not have a unique kvm_id: {{ kvm_id_list|duplicate }}"
+
+- name: ansible_host must be unique for every host
+  assert:
+    that:
+    - "{{ ansible_host_list|duplicate|length == 0 }}"
+    msg: "hosts do not have a unique ip address in  ansible_host: {{ ansible_host_list|duplicate }}"
+
+- name: create list of mac addresses for device 0
+  set_fact:
+    macaddr0_list: "{{ macaddr0_list + [ hostvars[item].macaddr0 ] }}"
+  when: "'macaddr0' in hostvars[item]"
+  loop: "{{ groups['dynamic_kvm_group'] if 'dynamic_kvm_group' in groups else [] }}"
+
+- name: mac_adress0 must be unique for every host
+  assert:
+    that:
+    - "{{ macaddr0_list|duplicate|length == 0 }}"
+    msg: "hosts do not have a unique mac address in mac_adress0: {{ macaddr0_list|duplicate }}"
+
+- name: create group for hosts with existing kvm_id and flash=True
+  add_host:
+    name:  "{{ item }}"
+    groups: dynamic_flash_group
+  when: "'flash' in hostvars[item] and hostvars[item].flash is boolean and hostvars[item].flash"
+  loop: "{{ groups['dynamic_kvm_group'] if 'dynamic_kvm_group' in groups else [] }}"
+
+
+- name: create group for hosts with existing kvm_id and flash=True
+  add_host:
+    name:  "{{ item }}"
+    groups: dynamic_flash_group
+  loop: "{{ flash_list_processed }}"
+
+#- debug:
+#    msg: "{{ groups['dynamic_flash_group'] }}"
+#- fail:
+#   msg: "{{ groups['dynamic_flash_group'] }}"
 

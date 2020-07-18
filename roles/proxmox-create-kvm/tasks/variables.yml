@@ -11,20 +11,20 @@
 #  proxmox                 contains mac_address and real path to drive
 
 
-- name: create proxmox_create_kvm_list
-  set_fact:
-    proxmox_create_kvm_list: "{{ proxmox_create_kvm_list + [ hostvars[item] ] }}"
-  loop: >-
-    {{ hostvars
-       |filter_child_dictionary('kvm_host', inventory_hostname)
-       |filter_child_dictionary('flash',    'True' )
-       |list
-    }}
-
-- name: report proxmox_guest_flash_list
-  debug:
-    msg: "{{ proxmox_create_kvm_list }}"
-    verbosity: 2
+#- name: create proxmox_create_kvm_list
+#  set_fact:
+#    proxmox_create_kvm_list: "{{ proxmox_create_kvm_list + [ hostvars[item] ] }}"
+#  loop: >-
+#    {{ hostvars
+#       |filter_child_dictionary('kvm_host', inventory_hostname)
+#       |filter_child_dictionary('flash',    'True' )
+#       |list
+#    }}
+#
+#- name: report proxmox_guest_flash_list
+#  debug:
+#    msg: "{{ proxmox_create_kvm_list }}"
+#    verbosity: 2
 
 - name: Create a directory if it does not exist
   file:

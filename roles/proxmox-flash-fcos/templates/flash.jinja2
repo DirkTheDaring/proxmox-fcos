@@ -1,6 +1,16 @@
 #!/usr/bin/env bash
 set -e
-{% for item in fcos_flash_list %}
+{% set machine_list =  groups['dynamic_flash_group'] if 'dynamic_flash_group' in groups else []  %}
+
+{% for machine in machine_list %}
+{% set item  = hostvars[machine]  %}
+{% set channel = item.fcos_channel|default(fcos_channel)  %}
+{% if 'fcos_version' in item %}
+{% set fcos_filename = "fedora-coreos-" + item.fcos_version + "-metal.x86_64.raw.xz" %}
+{% else  %}
+{% set fcos_filename = fcos_latest_coreos_filename %}
+{% endif %}
+
 qm stop {{ item.kvm_id }}
 # sometimes due to a kernel bug the device disappears
 lvm lvchange -aly "{{ proxmox[item.kvm_id].scsi0_path }}"

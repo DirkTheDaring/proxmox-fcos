@@ -1,0 +1,24 @@
+- name: upload script to gather information from proxmox
+  copy:
+    src:   "{{ item }}"
+    dest:  "{{ fcos_tmp_dir }}/{{ item }}"
+    owner: root
+    group: root
+    mode:  0755
+  loop:
+  - "bin/proxmox-to-json"
+
+- name: run script to gather information from proxmox
+  command: "{{ fcos_tmp_dir  }}/bin/proxmox-to-json"
+  register: proxmox_command
+  changed_when: false
+
+- set_fact:
+    proxmox: "{{ proxmox_command.stdout | from_json }}"
+
+- set_fact:
+    proxmox_command:
+
+- debug:
+    msg: "{{ proxmox }}"
+

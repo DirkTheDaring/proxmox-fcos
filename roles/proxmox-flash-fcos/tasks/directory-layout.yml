@@ -1,0 +1,22 @@
+- name: Create the download directory for fcct
+  file:
+    path:  "{{ fcos_bin_dir }}"
+    state: directory
+    mode: '0755'
+
+- name: Create the download directory for coreos images
+  file:
+    path:  "{{ fcos_root_dir }}"
+    state: directory
+    mode:  '0755'
+
+- name: Create a tmp directory if it does not exist
+  file:
+    path:  "{{ item }}"
+    state: directory
+    mode: '0755'
+  loop:
+  - "{{ fcos_tmp_dir }}"
+  - "{{ fcos_tmp_dir }}/bin"
+
+

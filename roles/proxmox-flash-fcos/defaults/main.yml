@@ -25,6 +25,9 @@ fcos_install_packages:
 - libselinux-python3
 - ethtool
 - ipset
+- ipvsadm
+- strace
+- nfs-utils
 #- dbus-tools
 
 fcos_machines: []
@@ -55,3 +58,13 @@ search: []
 #- ops.fritz.box
 
 fcos_override_sysconfig_docker: True
+
+
+macaddr0_list: []
+macaddr1_list: []
+kvm_id_list: []
+ansible_host_list: []
+flash_list: ""  # is a comma separated string
+
+
+fcos_disable_zincati: False

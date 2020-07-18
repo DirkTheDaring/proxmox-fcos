@@ -1,0 +1,83 @@
+- name: validate channel name global
+  assert: 
+    that: "fcos_channel in [ 'stable', 'next', 'testing' ]"
+    msg: "failed assert"
+
+- debug:
+    msg: "{{ groups['dynamic_flash_group'] if 'dynamic_flash_group' in groups else [] }}"
+
+- debug:
+    msg: "{{ hostvars[item].fcos_channel }}"
+  when:  "'fcos_channel' in hostvars[item]"
+  loop:  "{{ groups['dynamic_flash_group'] if 'dynamic_flash_group' in groups else [] }}"
+
+- name: validate channel name per host
+  assert: 
+    that: "hostvars[item].fcos_channel in [ 'stable', 'next', 'testing' ]"
+    msg: "variable fcos_channel in host {{ item }} is set to {{ hostvars[item].fcos_channel }}  which is none of the valid channels (stable,next,testing)"
+  when: "'fcos_channel' in hostvars[item]"
+  loop:  "{{ groups['dynamic_flash_group'] if 'dynamic_flash_group' in groups else [] }}"
+
+
+# The official stream is generated
+# by https://github.com/coreos/fedora-coreos-stream-generator/
+
+- uri:
+    url:            "https://builds.coreos.fedoraproject.org/streams/{{ fcos_channel }}.json"
+    #body_format:    json
+    return_content: no     # json content will still be recorded
+  register: fcos_streams   #.json.assets
+
+
+# Issues with json parsing --> you need to_json|from_json
+# see https://github.com/ansible/ansible/issues/27299
+
+# Hint: 
+# jq -r '.architectures.x86_64.artifacts.metal.formats["raw.xz"].disk.location'
+- set_fact:
+    fcos_latest_coreos_download_url:      "{{ fcos_streams.json|to_json| from_json |json_query('architectures.x86_64.artifacts.metal.formats.\"raw.xz\".disk.location') }}"
+    fcos_latest_coreos_download_checksum: "sha256:{{ fcos_streams.json|to_json|from_json|json_query('architectures.x86_64.artifacts.metal.formats.\"raw.xz\".disk.sha256') }}"
+
+- set_fact:
+    # remove fcos_streams variable
+    fcos_streams:
+    fcos_latest_coreos_filename: "{{ fcos_latest_coreos_download_url| basename }}"
+
+- debug:
+    msg:  "latest coreos: {{ fcos_latest_coreos_filename }}"
+ 
+# Dirty catch if "dest" is a directory, the file will ALWAYS be downloaded
+# Therefore it needs to be path to a FILE
+- name: download image if it doesn't exist or checksum does not match
+  get_url:
+    url:      "{{ fcos_latest_coreos_download_url }}"
+    dest:     "{{ fcos_root_dir }}/{{ fcos_latest_coreos_filename }}"
+    checksum: "{{ fcos_latest_coreos_download_checksum }}"
+    force:    "no"
+
+- debug:
+    msg:  "https://builds.coreos.fedoraproject.org/prod/streams/{{ hostvars[item].fcos_channel if 'fcos_channel' in hostvars else fcos_channel }}/builds/{{ hostvars[item].fcos_version }}/x86_64/fedora-coreos-{{ hostvars[item].fcos_version }}-metal.x86_64.raw.xz"
+
+  when: "'fcos_channel' in hostvars[item] and 'fcos_version' in hostvars[item]"
+  loop: "{{ groups['dynamic_flash_group'] if 'dynamic_flash_group' in groups else [] }}"
+
+# Format
+# https://builds.coreos.fedoraproject.org/prod/streams/stable/builds/32.20200629.3.0/x86_64/fedora-coreos-32.20200629.3.0-metal.x86_64.raw.xz
+
+- name: download image if it doesn't exist or checksum does not match
+  get_url:
+    url:      "https://builds.coreos.fedoraproject.org/prod/streams/{{ hostvars[item].fcos_channel if 'fcos_channel' in hostvars else fcos_channel }}/builds/{{ hostvars[item].fcos_version }}/x86_64/fedora-coreos-{{ hostvars[item].fcos_version }}-metal.x86_64.raw.xz"
+    dest:     "{{ fcos_root_dir }}/fedora-coreos-{{ hostvars[item].fcos_version }}-metal.x86_64.raw.xz"
+    force:    "no"
+  when: "'fcos_channel' in hostvars[item] and 'fcos_version' in hostvars[item]"
+  loop: "{{ groups['dynamic_flash_group'] if 'dynamic_flash_group' in groups else [] }}"
+
+#
+#- set_fact:
+##  fcos_download_url: "https://builds.coreos.fedoraproject.org/prod/streams/stable/builds/32.20200629.3.0/x86_64/fedora-coreos-32.20200615.3.0-metal.x86_64.raw.xz"
+##  fcos_download_checksum: "sha256:ba6777955d9ce8cb80e7beff0c2a5feb975871646cc9553bb5b26d710ac52630"
+#    fcos_download_url: "https://builds.coreos.fedoraproject.org/prod/streams/stable/builds/32.20200629.3.0/x86_64/fedora-coreos-32.20200601.3.0-metal.x86_64.raw.xz"
+#    fcos_download_checksum: "sha256:6be1a68be00d889d91f1de10c98ff1af72acb4c97ec969ce38af4c477a0ef757"
+#
+#  when: fcos_download_url == ""
+#

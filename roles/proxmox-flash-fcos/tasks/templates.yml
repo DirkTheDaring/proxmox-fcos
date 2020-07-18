@@ -1,23 +1,5 @@
-#- name: create temporary directory
-#  tempfile:
-#    state:  directory
-#    suffix: build
-#  register: fcos_tmp_dir_result
-#
-#- debug:
-#    msg: "{{ fcos_tmp_dir_result.path }}"
-#
-#
-
 - name: list
   debug: msg={{ fcos_sshkeys_dir + '/*.pub'  }}
-
-#- name: list
-#  set_fact:
-#    ssh_authorized_keys_files: "{{ lookup('fileglob', fcos_ssh_authorized_keys_dir + '/*.pub', wantlist=True ) }}"
-
-#- name:
-#  debug: msg={{ ssh_authorized_keys_files }}
 
 - name:
   set_fact:
@@ -31,21 +13,9 @@
 - name: list
   debug: msg={{ fcos_cacerts_dir + '/*.crt'  }}
 
-#- name:  run through groups
-#  set_fact:
-#    cacheable: yes
-#    xxxxxxxxxxx: "grunz"
-#  delegate_to: item
-#  delegate_facts: True
-#  loop:  "{{ groups['fedora_coreos'] }}"
-#
-
 - name:  run through groups
   debug:
     msg: "{{ hostvars[groups['fedora_coreos'][0]] }}"
-
-#- name:  run through groups
-#  debug: msg={{ hostvars }}
 
 # lookup the *.crt files in the loop, and the create per file an entry with filename and content, which can easily be used later on
 - name:
@@ -58,36 +28,33 @@
 
 - name: Create a directory if it does not exist
   file:
-    path:  "{{ fcos_tmp_dir }}/{{ item.kvm_id }}"
+    path:  "{{ fcos_tmp_dir }}/{{ hostvars[item].kvm_id }}"
     state: directory
     mode: '0755'
-  loop: "{{ fcos_flash_list }}"
+  loop: "{{ groups['dynamic_flash_group'] if 'dynamic_flash_group' in groups else [] }}"
 
 - name: Create config file for fcct compiler
   template:
     src:  'config.yaml.jinja2'
-    dest: "{{ fcos_tmp_dir }}/{{ item.kvm_id }}/config.yaml"
+    dest: "{{ fcos_tmp_dir }}/{{ hostvars[item].kvm_id }}/config.yaml"
     mode: '0644'
-  loop: "{{ fcos_flash_list }}"
+  loop: "{{ groups['dynamic_flash_group'] if 'dynamic_flash_group' in groups else [] }}"
 
 - name:     create ignition config from fcct yaml file
-  command:  "bash -c '{{ fcos_bin_dir }}/{{ fcos_fcct_filename }} <{{ fcos_tmp_dir }}/{{ item.kvm_id }}/config.yaml >{{ fcos_tmp_dir }}/{{ item.kvm_id }}/config.ign'"
-  loop:     "{{ fcos_flash_list }}"
+  command:  "bash -c '{{ fcos_bin_dir }}/{{ fcos_fcct_filename }} <{{ fcos_tmp_dir }}/{{ hostvars[item].kvm_id }}/config.yaml >{{ fcos_tmp_dir }}/{{ hostvars[item].kvm_id }}/config.ign'"
+  loop: "{{ groups['dynamic_flash_group'] if 'dynamic_flash_group' in groups else [] }}"
   register: result
 
 - name: Create config file for fcct compiler
   template:
     src:  'ignition-firstboot.jinja2'
-    dest: "{{ fcos_tmp_dir }}/{{ item.kvm_id }}/ignition.firstboot"
+    dest: "{{ fcos_tmp_dir }}/{{ hostvars[item].kvm_id }}/ignition.firstboot"
     mode: '0644'
-  loop: "{{ fcos_flash_list }}"
+  loop: "{{ groups['dynamic_flash_group'] if 'dynamic_flash_group' in groups else [] }}"
+  register: result
 
 - name: Create flash install script
   template:
     src:  'flash.jinja2'
     dest: "{{ fcos_tmp_dir }}/bin/flash"
     mode: '0755'
-
-- name: execute flash script
-  command: "{{ fcos_tmp_dir }}/bin/flash"
-

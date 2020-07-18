@@ -1,3 +1,6 @@
+{% set item  = hostvars[item]  %}
+{% set disable_zincati = item.fcos_disable_zincati if 'fcos_disable_zincati' in item else fcos_disable_zincati %}
+
 variant: fcos
 version: 1.0.0
 passwd:
@@ -14,9 +17,10 @@ passwd:
     - docker
 systemd:
   units:
+{% if disable_zincati is boolean and disable_zincati %}
   - name: zincati.service
     mask: true
-
+{% endif %}
   - name: update-ca-trust.service
     enabled: true
     contents: |
@@ -91,7 +95,7 @@ storage:
       inline: |
         {{ item.hostname | default(item.inventory_hostname) }}
 
-  - path: /etc/NetworkManager/system-connections/{{ fcos_default_network_device }}.nmconnection
+  - path: /etc/NetworkManager/system-connections/{{ item.fcos_default_network_device |default(fcos_default_network_device) }}.nmconnection
     user:
       name: root
     group:
@@ -102,7 +106,7 @@ storage:
       inline: |
         [connection]
         type=ethernet
-        interface-name={{ item.network_interface |default( fcos_default_network_device ) }}
+        interface-name={{ item.fcos_default_network_device |default( fcos_default_network_device ) }}
 
         [ethernet]
         mac-address={{ proxmox[item.kvm_id].mac_address }}
