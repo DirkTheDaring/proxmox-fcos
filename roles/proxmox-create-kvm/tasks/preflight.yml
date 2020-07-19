@@ -2,11 +2,11 @@
 # to overrwirte it here, it will always be higher in priority, therefor no changes
 #
 #
-#- set_fact:
-#    flash_list_processed: []
-#    destroy_list_processed: []
-#    kvm_id_list: []
-#    ansible_host_list: []
+- set_fact:
+    flash_list_processed:
+    destroy_list_processed:
+    kvm_id_list:
+    ansible_host_list:
 
 - set_fact:
     # convert comma separated string to list and remove empty list items
@@ -103,13 +103,14 @@
   add_host:
     name:  "{{ item }}"
     groups: dynamic_flash_group
-  when: "'flash' in hostvars[item] and hostvars[item].flash is boolean and hostvars[item].flash"
+  when: "'flash' in hostvars[item] and hostvars[item].flash is boolean and hostvars[item].flash and hostvars[item].kvm_host == inventory_hostname"
   loop: "{{ groups['dynamic_kvm_group'] if 'dynamic_kvm_group' in groups else [] }}"
 
 - name: add hosts from flash_list to dynamic_flash_group
   add_host:
     name:  "{{ item }}"
     groups: dynamic_flash_group
+  when: "hostvars[item].kvm_host == inventory_hostname"
   loop: "{{ flash_list_processed }}"
 
 - name: add hosts from flash_list to dynamic_fcos_flash_group
@@ -123,16 +124,16 @@
   add_host:
     name:  "{{ item }}"
     groups: dynamic_destroy_group
+  when: "hostvars[item].kvm_host == inventory_hostname"
   loop: "{{ destroy_list_processed }}"
-
 
 - name: "destroy group"
   debug:
     msg: "{{ item }}"
+  when: "hostvars[item].kvm_host == inventory_hostname"
   loop: "{{ groups['dynamic_destroy_group'] if 'dynamic_destroy_group' in groups else []  }}"
 
-
-- name: "flash group"
+- name: "fcos flash group"
   debug:
     msg: "{{ item }}"
   loop: "{{ groups['dynamic_fcos_flash_group'] if 'dynamic_fcos_flash_group' in groups else []  }}"
