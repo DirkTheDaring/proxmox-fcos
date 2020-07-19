@@ -71,3 +71,5 @@ flash_list: ""  # is a comma separated string
 
 
 fcos_disable_zincati: False
+fcos_fcct_filename: 'fcct-x86_64-unknown-linux-gnu'
+
