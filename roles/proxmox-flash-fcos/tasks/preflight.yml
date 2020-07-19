@@ -68,7 +68,6 @@
   when: "'kvm_id' in hostvars[item] and hostvars[item].kvm_id|int is number"
   loop: "{{ groups['all'] }}"
 
-
 - name: create list of kvm_id(s) and a list of ansible_host(s)
   set_fact:
     kvm_id_list:       "{{ kvm_id_list       + [ hostvars[item].kvm_id       ] }}"
@@ -103,21 +102,20 @@
   add_host:
     name:  "{{ item }}"
     groups: dynamic_flash_group
-  when: "'flash' in hostvars[item] and hostvars[item].flash is boolean and hostvars[item].flash and hostvars[item].kvm_host == inventory_hostname"
+  when: "'flash' in hostvars[item] and hostvars[item].flash is boolean and hostvars[item].flash"
   loop: "{{ groups['dynamic_kvm_group'] if 'dynamic_kvm_group' in groups else [] }}"
 
 - name: add hosts from flash_list to dynamic_flash_group
   add_host:
     name:  "{{ item }}"
     groups: dynamic_flash_group
-  when: "hostvars[item].kvm_host == inventory_hostname"
   loop: "{{ flash_list_processed }}"
 
 - name: add hosts from flash_list to dynamic_fcos_flash_group
   add_host:
     name:  "{{ item }}"
     groups: dynamic_fcos_flash_group
-  when: "'os_name' in hostvars[item] and hostvars[item].os_name == 'fcos'"
+  when: "'os_name' in hostvars[item] and hostvars[item].os_name == 'fcos' and hostvars[item].kvm_host == inventory_hostname"
   loop: "{{ groups['dynamic_flash_group'] if 'dynamic_flash_group' in groups else [] }}"
 
 - name: add hosts from destroy_list to dynamic_destroy_group
@@ -130,7 +128,6 @@
 - name: "destroy group"
   debug:
     msg: "{{ item }}"
-  when: "hostvars[item].kvm_host == inventory_hostname"
   loop: "{{ groups['dynamic_destroy_group'] if 'dynamic_destroy_group' in groups else []  }}"
 
 - name: "fcos flash group"

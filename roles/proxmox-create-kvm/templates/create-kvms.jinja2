@@ -2,6 +2,7 @@
 set -e
 {% for machine in groups['dynamic_kvm_group'] %}
 {% set item  = hostvars[machine]  %}
+{% if item.kvm_host == inventory_hostname %}
 
 if [ -f "/etc/pve/qemu-server/{{ item.kvm_id }}.conf" ]; then
   echo "Skipping {{ item.kvm_id }}: config exists"
@@ -62,5 +63,5 @@ else
 {% endif %}
   
 fi
+{% endif %}
 {% endfor %}
-
