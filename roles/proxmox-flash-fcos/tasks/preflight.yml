@@ -3,10 +3,10 @@
 #
 #
 - set_fact:
-    flash_list_processed:
-    destroy_list_processed:
-    kvm_id_list:
-    ansible_host_list:
+    flash_list_processed: []
+    destroy_list_processed: []
+    kvm_id_list: []
+    ansible_host_list: []
 
 - set_fact:
     # convert comma separated string to list and remove empty list items
