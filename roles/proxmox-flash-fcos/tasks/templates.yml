@@ -38,10 +38,12 @@
     src:  'config.yaml.jinja2'
     dest: "{{ fcos_tmp_dir }}/{{ hostvars[item].kvm_id }}/config.yaml"
     mode: '0644'
+  when: "hostvars[item].kvm_host == inventory_hostname"
   loop: "{{ groups['dynamic_fcos_flash_group'] if 'dynamic_fcos_flash_group' in groups else [] }}"
 
 - name:     create ignition config from fcct yaml file
   command:  "bash -c '{{ fcos_bin_dir }}/{{ fcos_fcct_filename }} <{{ fcos_tmp_dir }}/{{ hostvars[item].kvm_id }}/config.yaml >{{ fcos_tmp_dir }}/{{ hostvars[item].kvm_id }}/config.ign'"
+  when: "hostvars[item].kvm_host == inventory_hostname"
   loop: "{{ groups['dynamic_fcos_flash_group'] if 'dynamic_fcos_flash_group' in groups else [] }}"
   register: result
 
@@ -50,6 +52,7 @@
     src:  'ignition-firstboot.jinja2'
     dest: "{{ fcos_tmp_dir }}/{{ hostvars[item].kvm_id }}/ignition.firstboot"
     mode: '0644'
+  when: "hostvars[item].kvm_host == inventory_hostname"
   loop: "{{ groups['dynamic_fcos_flash_group'] if 'dynamic_fcos_flash_group' in groups else [] }}"
   register: result
 
