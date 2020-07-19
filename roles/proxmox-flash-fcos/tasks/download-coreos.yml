@@ -22,7 +22,8 @@
 # The official stream is generated
 # by https://github.com/coreos/fedora-coreos-stream-generator/
 
-- uri:
+- name: check for latest 
+  uri:
     url:            "https://builds.coreos.fedoraproject.org/streams/{{ fcos_channel }}.json"
     #body_format:    json
     return_content: no     # json content will still be recorded

@@ -115,7 +115,7 @@
   add_host:
     name:  "{{ item }}"
     groups: dynamic_fcos_flash_group
-  when: "'os_name' in hostvars[item] and hostvars[item].os_name == 'fcos' and hostvars[item].kvm_host == inventory_hostname"
+  when: "'os_name' in hostvars[item] and hostvars[item].os_name == 'fcos'"
   loop: "{{ groups['dynamic_flash_group'] if 'dynamic_flash_group' in groups else [] }}"
 
 - name: add hosts from destroy_list to dynamic_destroy_group

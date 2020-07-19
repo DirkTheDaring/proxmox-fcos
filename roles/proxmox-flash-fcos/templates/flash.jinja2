@@ -4,6 +4,7 @@ set -e
 
 {% for machine in machine_list %}
 {% set item  = hostvars[machine]  %}
+{% if item.kvm_host == inventory_hostname %}
 {% set channel = item.fcos_channel|default(fcos_channel)  %}
 {% if 'fcos_version' in item %}
 {% set fcos_filename = "fedora-coreos-" + item.fcos_version + "-metal.x86_64.raw.xz" %}
@@ -37,4 +38,5 @@ losetup --detach "$DEV"
 sleep 3
 qm start {{ item.kvm_id }}
 #########################
+{% endif %}
 {% endfor %}
