@@ -113,7 +113,7 @@ storage:
         interface-name={{ item.fcos_default_network_device |default( fcos_default_network_device ) }}
 
         [ethernet]
-        mac-address={{ proxmox[item.kvm_id].macaddr0 }}
+        mac-address={{ proxmox[item.kvm_id].net0_macaddr }}
 
         [ipv4]
         method=manual
