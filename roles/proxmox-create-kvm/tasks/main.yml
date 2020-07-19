@@ -1,3 +1,5 @@
 - import_tasks: "preflight.yml"
 - import_tasks: "variables.yml"
 - import_tasks: "templates.yml"
+- import_tasks: "destroy.yml"
+- import_tasks: "create.yml"

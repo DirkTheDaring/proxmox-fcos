@@ -5,6 +5,7 @@ macaddr1_list: []
 kvm_id_list: []
 ansible_host_list: []
 flash_list: ""  # is a comma separated string
+destroy_list: ""  # is a comma separated string
 
 
 net0:
