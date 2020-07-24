@@ -8,5 +8,5 @@
     msg: "{{ item }}" 
   loop: "{{ kvm_host_list }}"
 
-- fail:
-   msg: "END"
+    #- fail:
+    #   msg: "END"

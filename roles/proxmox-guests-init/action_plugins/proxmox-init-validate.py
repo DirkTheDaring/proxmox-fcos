@@ -63,6 +63,7 @@ class ActionModule(ActionBase):
         [ False, 'disk1',    'int'],
         [ False, 'disk2',    'int'],
         [ False, 'disk3',    'int'],
+        [ True,  'cores',    'int'],
         [ True,  'arch',     'str', 'set', ['x86_64','aarch64']],
         [ True,  'os_type',  'str', 'set', ['linux', 'windows']],
         [ False, 'os_name',  'str'],
