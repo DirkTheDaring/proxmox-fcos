@@ -1,0 +1,24 @@
+# There is a mean co-notation, when you provide with -e the flash_variable, it has the highest priority, so regardless, if you try
+# to overrwirte it here, it will always be higher in priority, therefor no changes
+#
+
+- action: "set_var_fcos_list"
+
+- name: "kvm_host_list" 
+  debug: 
+    msg: "{{ kvm_host_list }}"
+
+- name: "fcos_host_list" 
+  debug: 
+    msg: "{{ fcos_host_list }}"
+
+- name: "fcos_host_flash_list" 
+  debug: 
+    msg: "{{ fcos_host_flash_list }}"
+
+- name: "fcos_os_version_list" 
+  debug: 
+    msg: "{{ fcos_os_version_list }}"
+
+#- fail:
+#    msg: "END!"

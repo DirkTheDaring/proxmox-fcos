@@ -1,6 +1,23 @@
 ---
 - hosts:
-  - proxmox
+  - localhost
+  gather_facts:     False
+  any_errors_fatal: True
+  roles:
+  - ansible-validation
+
+- name: proxmox guests 
+  hosts:
+  - proxmox_guests
+  gather_facts:     False
+  any_errors_fatal: True
+  roles:
+  - proxmox-guest-init
+
+- name: proxmox flash fcos
+  hosts:
+  - proxmox_hosts
   roles:
   - proxmox-create-kvm
   - proxmox-flash-fcos
+

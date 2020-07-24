@@ -1,2 +1,0 @@
-- name: execute flash script
-  command: "{{ fcos_tmp_dir }}/bin/flash"

@@ -1,0 +1,13 @@
+- name: "create files"
+  template:
+    src:   "{{ item | basename }}.jinja2"
+    dest:  "{{ item }}"
+    owner: root
+    group: root
+    mode:  0644
+  loop:
+  - "/etc/sysctl.d/vmdirty.conf"
+
+#- name:     update sysctl
+#  command:  "sysctl"
+#  when:     proxmox_grub_files.changed

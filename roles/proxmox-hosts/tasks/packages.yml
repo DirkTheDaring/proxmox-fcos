@@ -1,0 +1,14 @@
+- name: apt update
+  apt:
+   cache_valid_time: 3600
+
+- name: install packages
+  apt:
+    name: "{{ packages }}"
+  vars:
+    packages:
+    - ethtool
+    - vim
+    - net-tools
+    - sysfsutils
+#  when: proxmox_host_network_quirk == True

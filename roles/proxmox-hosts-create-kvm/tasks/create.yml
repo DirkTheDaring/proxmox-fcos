@@ -1,0 +1,3 @@
+- name: execute kvm creator script
+  command: "{{ proxmox_create_kvm_tmp_dir }}/bin/create-kvms"
+  changed_when: false

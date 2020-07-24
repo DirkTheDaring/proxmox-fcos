@@ -1,0 +1,15 @@
+- name: "create entries in /etc/modules"
+  lineinfile:
+    state:  present
+    path:   /etc/modules
+    regexp: "^{{ item }}[ |\t]*$"
+    line:   "{{ item }}"
+  loop:
+  - vfio
+  - vfio_iommu_type1
+  - vfio_pci
+  - vfio_virqfd
+
+#  - coretemp
+#  - i5500_temp
+#  - w83627ehf

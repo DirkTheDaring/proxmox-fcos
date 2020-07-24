@@ -1,0 +1,49 @@
+# The official stream is generated
+# by https://github.com/coreos/fedora-coreos-stream-generator/
+
+- name: check for latest 
+  uri:
+    url:            "https://builds.coreos.fedoraproject.org/streams/{{ fcos_channel }}.json"
+    #body_format:    json
+    return_content: no     # json content will still be recorded
+  register: fcos_streams   #.json.assets
+
+
+# Issues with json parsing --> you need to_json|from_json
+# see https://github.com/ansible/ansible/issues/27299
+
+# Hint:
+# jq -r '.architectures.x86_64.artifacts.metal.formats["raw.xz"].disk.location'
+- set_fact:
+    fcos_latest_coreos_download_url:      "{{ fcos_streams.json|to_json| from_json |json_query('architectures.x86_64.artifacts.metal.formats.\"raw.xz\".disk.location') }}"
+    fcos_latest_coreos_download_checksum: "sha256:{{ fcos_streams.json|to_json|from_json|json_query('architectures.x86_64.artifacts.metal.formats.\"raw.xz\".disk.sha256') }}"
+
+- set_fact:
+    # remove fcos_streams variable
+    fcos_streams:
+    fcos_latest_coreos_filename: "{{ fcos_latest_coreos_download_url| basename }}"
+
+- debug:
+    msg:  "latest coreos: {{ fcos_latest_coreos_filename }}"
+
+# Dirty catch if "dest" is a directory, the file will ALWAYS be downloaded
+# Therefore it needs to be path to a FILE
+- name: download image if it doesn't exist or checksum does not match
+  get_url:
+    url:      "{{ fcos_latest_coreos_download_url }}"
+    dest:     "{{ fcos_root_dir }}/{{ fcos_latest_coreos_filename }}"
+    checksum: "{{ fcos_latest_coreos_download_checksum }}"
+    force:    "no"
+
+- debug:
+     msg:  "https://builds.coreos.fedoraproject.org/prod/streams/{{ item.fcos_channel }}/builds/{{ item.os_version }}/x86_64/fedora-coreos-{{ item.os_version }}-metal.x86_64.raw.xz"
+  loop: "{{ fcos_os_version_list }}"
+
+# https://builds.coreos.fedoraproject.org/prod/streams/stable/builds/32.20200629.3.0/x86_64/fedora-coreos-32.20200629.3.0-metal.x86_64.raw.xz
+
+- name: download image if it doesn't exist or checksum does not match
+  get_url:
+    url:      "https://builds.coreos.fedoraproject.org/prod/streams/{{ item.fcos_channel }}/builds/{{ item.os_version }}/x86_64/fedora-coreos-{{ item.os_version }}-metal.x86_64.raw.xz"
+    dest:     "{{ fcos_root_dir }}/fedora-coreos-{{ item.os_version }}-metal.x86_64.raw.xz"
+    force:    "no"
+  loop: "{{ fcos_os_version_list }}"

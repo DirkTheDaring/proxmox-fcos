@@ -1,0 +1,15 @@
+- name: Remove file /etc/apt/sources.list.d/pve-enterprise.list
+  file:
+    path:  /etc/apt/sources.list.d/pve-enterprise.list
+    state: absent
+
+- name: "create no subscription pve repo entry" 
+  template:
+    src:   "{{ item | basename }}.jinja2"
+    dest:  "{{ item }}"
+    owner: root
+    group: root
+    mode:  0644
+  with_items:
+  - "/etc/apt/sources.list.d/pve-no-subscription.list"
+

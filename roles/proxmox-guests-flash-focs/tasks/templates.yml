@@ -1,0 +1,56 @@
+- name: list
+  debug: msg={{ fcos_sshkeys_dir + '/*.pub'  }}
+
+- name:
+  set_fact:
+    # default has sshkeys defined as emtpy list
+    fcos_sshkeys: "{{ fcos_sshkeys + [ lookup('file', item) ] }}"
+  loop: "{{ lookup('fileglob', fcos_sshkeys_dir + '/*.pub', wantlist=True ) }}"
+
+- name:
+  debug: msg={{ fcos_sshkeys }}
+
+- name: list
+  debug: msg={{ fcos_cacerts_dir + '/*.crt'  }}
+
+# lookup the *.crt files in the loop, and the create per file an entry with filename and content, which can easily be used later on
+- name:
+  set_fact:
+    fcos_cacerts: "{{ fcos_cacerts + [ { \"filename\": item|basename, \"content\": lookup('file', item) } ] }}"
+  loop: "{{ lookup('fileglob', fcos_cacerts_dir + '/*.crt', wantlist=True ) }}"
+
+- name:
+  debug: msg={{ fcos_cacerts }}
+
+- name: Create a directory if it does not exist
+  file:
+    path:  "{{ fcos_tmp_dir }}/{{ hostvars[item].kvm_id }}"
+    state: directory
+    mode: '0755'
+  loop: "{{ fcos_host_flash_list }}"
+
+- name: Create config file for fcct compiler
+  template:
+    src:  'config.yaml.jinja2'
+    dest: "{{ fcos_tmp_dir }}/{{ hostvars[item].kvm_id }}/config.yaml"
+    mode: '0644'
+  loop: "{{ fcos_host_flash_list }}"
+
+- name:     create ignition config from fcct yaml file
+  command:  "bash -c '{{ fcos_bin_dir }}/{{ fcos_fcct_filename }} <{{ fcos_tmp_dir }}/{{ hostvars[item].kvm_id }}/config.yaml >{{ fcos_tmp_dir }}/{{ hostvars[item].kvm_id }}/config.ign'"
+  loop: "{{ fcos_host_flash_list }}"
+  register: result
+
+- name: Create config file for fcct compiler
+  template:
+    src:  'ignition-firstboot.jinja2'
+    dest: "{{ fcos_tmp_dir }}/{{ hostvars[item].kvm_id }}/ignition.firstboot"
+    mode: '0644'
+  loop: "{{ fcos_host_flash_list }}"
+  register: result
+
+- name: Create flash install script
+  template:
+    src:  'flash-fcos.jinja2'
+    dest: "{{ fcos_tmp_dir }}/bin/flash-fcos"
+    mode: '0755'

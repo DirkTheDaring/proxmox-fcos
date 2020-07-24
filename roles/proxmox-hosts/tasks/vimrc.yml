@@ -1,0 +1,22 @@
+- name: "create .vimrc for user root if it doesn't exist"
+  template:
+    src:   "vimrc.jinja2"
+    dest:  "{{ item }}"
+    owner: root
+    group: root
+    mode:  0644
+    force: no      # if the file exists we do nothing
+  loop:
+  - "/root/.vimrc"
+
+#- name: "create .vimrc for user core if it doesn't exist"
+#  template:
+#    src:   "vimrc.jinja2"
+#    dest:  "{{ item }}"
+#    owner: core
+#    group: root
+#    mode:  0644
+#    force: no
+#  loop:
+#  - "/home/core/.vimrc"
+#

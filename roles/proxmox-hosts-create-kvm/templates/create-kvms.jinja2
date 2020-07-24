@@ -1,0 +1,65 @@
+#!/usr/bin/env bash
+set -e
+{% for machine in kvm_host_list %}
+{% set item  = hostvars[machine]  %}
+
+if [ -f "/etc/pve/qemu-server/{{ item.kvm_id }}.conf" ]; then
+  echo "Skipping {{ item.kvm_id }}: config exists"
+else 
+{% set onboot  = item.onboot |default(1) %}
+{% set memory  = item.memory |default(2048) %}
+{% set balloon = item.balloon|default(memory/2)|int %}
+{% set cores   = item.cores  |default(2) %}
+{% set storage_name = default_storage_name |default('local-lvm') %}
+{% set storage_size = 3 %}
+{% set disk0 = item.disk0|default(storage_size)|string %}
+{% set disk1 = item.disk1|default(storage_size)|string %}
+{% set disk2 = item.disk2|default(storage_size)|string %}
+{% set disk3 = item.disk3|default(storage_size)|string %}
+{% set scsi0 = disk0 if ':' in disk0 else storage_name + ':' + disk0 %}
+
+  qm create {{ item.kvm_id }} \
+  --name    "{{ item.hostname | default(item.inventory_hostname) }}"\
+  --onboot  {{ onboot }}\
+  --ostype  l26\
+  --memory  {{ memory }}\
+  --balloon {{ balloon }}\
+  --cores   {{ cores }}\
+  --scsi0   {{ scsi0 }}\
+{% if 'disk1' in item %}
+{% set disk1 = item.disk1|string %}
+  --scsi1   {{ disk1 if ':' in disk1 else storage_name + ':' + disk1 }}\
+{% endif  %}
+{% if 'disk2' in item %}
+{% set disk2 = item.disk2|string %}
+  --scsi2   {{ disk2 if ':' in disk2 else storage_name + ':' + disk2 }}\
+{% endif  %}
+{% if 'disk3' in item %}
+{% set disk3 = item.disk3|string %}
+  --scsi3   {{ disk3 if ':' in disk3 else storage_name + ':' + disk3 }}\
+{% endif  %}
+  --scsihw  virtio-scsi-pci\
+{% if 'macaddr0' in item %}
+  --net0    virtio={{ item.macaddr0|upper }},bridge=vmbr0\
+{% else  %}
+  --net0    virtio,bridge=vmbr0\
+{% endif  %}
+{% if 'bridge1' in item %}
+{% if 'macaddr1' in item %}
+  --net1    virtio={{ item.macaddr1|upper }},bridge={{ item.bridge1 }}\
+{% else  %}
+  --net1    virtio,bridge={{ item.bridge1 }}\
+{% endif  %}
+{% endif  %}
+
+{% if 'disk1' in item %}
+  # only after a qm create with a previously non existing conf we can 
+  # safely assume that we can format the second disk 
+  DEV=$(grep -oP 'scsi1: \K[^,]*' /etc/pve/qemu-server/{{item.kvm_id}}.conf|xargs pvesm path)
+  if [ -n "$DEV" ]; then
+    mkfs.xfs "$DEV" 
+  fi
+{% endif %}
+  
+fi
+{% endfor %}

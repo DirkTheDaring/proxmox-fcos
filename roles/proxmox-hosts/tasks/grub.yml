@@ -1,0 +1,24 @@
+# https://www.linux-kvm.org/page/How_to_assign_devices_with_VT-d_in_KVM
+- name: set grub cmdline option for msrs
+  set_fact:
+    grub_msrs_option: [ "kvm.ignore_msrs=1" ]
+
+- name: set grub cmdline option for iommu
+  set_fact:
+    grub_iommu_option: "{{ ['intel_iommu=on'] if ansible_processor[1]=='GenuineIntel' else ['amd_iommu=on'] }}"
+
+- name: join all commandline options into one list
+  set_fact:
+    grub_cmdline_option_list: "{{ grub_options + grub_iommu_option + grub_msrs_option }}"
+
+- name: "update cmdline in /etc/default/grub"
+  lineinfile:
+    state:  present
+    path:   /etc/default/grub
+    regexp: "^GRUB_CMDLINE_LINUX_DEFAULT=.*$"
+    line:   "GRUB_CMDLINE_LINUX_DEFAULT=\"quiet {{ grub_cmdline_option_list | join(' ') }}\""
+  register:  proxmox_etc_default_grub
+
+- name:     "update grub"
+  command:  "/usr/sbin/update-grub"
+  when:     proxmox_etc_default_grub.changed

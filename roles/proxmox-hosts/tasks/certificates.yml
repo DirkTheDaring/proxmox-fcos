@@ -1,0 +1,35 @@
+- name: certificates
+  copy:
+    src:   "{{ item }}"
+    dest:  /etc/ssl/certs
+    owner: root
+    group: www-data
+    mode:  0640
+  with_fileglob:
+  - "{{ configuration_name }}/{{ configuration_stage }}/certs/pveproxy/*.crt"
+  register: proxmox_cert
+
+- name: certificate keys
+  copy:
+    src:   "{{ item }}"
+    dest:  /etc/ssl/private
+    owner: root
+    group: www-data
+    mode:  0640
+  with_fileglob:
+  - "{{ configuration_name }}/{{ configuration_stage }}/certs/pveproxy/*.key"
+  register: proxmox_cert_private
+
+- name:     install pveproxy-ssl cert
+  command:  "cp -a /etc/ssl/certs/{{ proxmox_host_cert_domain }}.crt   /etc/pve/nodes/{{ inventory_hostname_short }}/pveproxy-ssl.pem"
+  when:     proxmox_cert.changed
+
+- name:     install pveproxy-ssl certkey
+  command:  "cp -a /etc/ssl/private/{{ proxmox_host_cert_domain }}.key /etc/pve/nodes/{{ inventory_hostname_short }}/pveproxy-ssl.key"
+  when:     proxmox_cert_private.changed
+  register: proxmox_installed_cert
+
+- name:     restart pveproxy
+  command:  "/usr/bin/systemctl restart pveproxy"
+  when:     proxmox_installed_cert.changed
+
