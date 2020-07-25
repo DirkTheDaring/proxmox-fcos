@@ -1,0 +1,8 @@
+- import_tasks: "gather-information.yml"
+- import_tasks: "cluster.yml"
+- import_tasks: "download-coreos.yml"
+- import_tasks: "fail.yml"
+- import_tasks: "directory-layout.yml"
+- import_tasks: "templates.yml"
+- import_tasks: "fail.yml"
+- import_tasks: "create.yml"

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -e
-{% for machine in kvm_host_list %}
+{% for machine in proxmox_guests_list %}
 {% set item  = hostvars[machine]  %}
 {% set kvm_host = item.kvm_host %}
 {% set item_host = hostvars[kvm_host] %}
@@ -18,6 +18,11 @@ else
 {% set disk2 = item.disk2|default(storage_size)|string %}
 {% set disk3 = item.disk3|default(storage_size)|string %}
 {% set scsi0 = disk0 if ':' in disk0 else storage_name + ':' + disk0 %}
+
+{% if machine in destroy_list %}
+  # qm stop    {{ item.kvm_id }}
+  # qm destroy {{ item.kvm_id }}
+{% endif %}
 
   qm create {{ item.kvm_id }} \
   --name    "{{ item.hostname | default(item.inventory_hostname) }}"\

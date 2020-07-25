@@ -1,0 +1,7 @@
+macaddr0_list: []
+
+proxmox_downloaddir: "/ftp/pub/linux/fcos"
+fcos_downloaddir: "/ftp/pub/linux/fcos"
+fcos_channels: ['stable', 'testing', 'next']
+fcos_channel: 'stable'
+fcos_upgrade_days: 1

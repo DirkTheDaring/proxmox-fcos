@@ -30,30 +30,41 @@ class STORAGECONFIG:
 
 class QMCONFIG:
   def parse(self, fd, my_dict, lookup):
-   re_mac = re.compile(r'^net[0-9]+:.*([0-9A-F]{2,2}(:[0-9A-F]{2,2}){5,5})')
+   re_mac = re.compile(r'^(net[0-9]+):.*([0-9A-F]{2,2}(:[0-9A-F]{2,2}){5,5})')
    re_drives = re.compile(r'^(scsi[0-9]+|ide[0-9]+|sata[0-9]+):[ |\t]+(.*)')
-
    for line in fd:
      mo = re_mac.search(line)
      if mo:
-       mac = mo.groups()[0]
-       my_dict['mac_address'] = mac.lower()
+       net = mo.groups()[0]
+       mac = mo.groups()[1]
+       my_dict[net + '_macaddr'] = mac.lower()
 
      mo = re_drives.search(line)
      if mo:
        drive_name, value = mo.groups()
        array = value.split(",")
+       # first item is always storage
        url = array.pop(0)
        sub_dict = {}
        for item in array:
          key,val = item.split("=")
          sub_dict[key]=val
 
+       if url == 'none':
+           continue
+
        volume, disk = url.split(":")
+       my_dict[drive_name + "_storage"] = volume
        if volume in lookup:
          real_name = lookup[volume]
          path = os.path.join('/dev',real_name,disk)
          my_dict[drive_name + '_path']=path
+       else:
+          continue
+       for key,value in sub_dict.items():
+           my_dict[drive_name + "_" + key ] = value
+
+       
 
 sc = STORAGECONFIG()
 qm = QMCONFIG()

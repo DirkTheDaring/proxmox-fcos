@@ -1,0 +1,152 @@
+# The official stream is generated
+# by https://github.com/coreos/fedora-coreos-stream-generator/
+
+# Run this only once in the groups of hosts (inventory_hostname == ansible_play_hosts_all[0])
+
+- set_fact:
+    download_hostname: "{{ ansible_play_hosts_all[0] }}"
+
+- stat:
+    path: "{{ proxmox_downloaddir }}/{{ item }}.json"
+  loop: "{{ fcos_channels }}"
+  when: inventory_hostname == download_hostname
+  register: json_files
+
+- debug:
+    msg: "{{ fcos_channels[i] }}"
+  when: inventory_hostname == download_hostname and (not item.stat.exists or ((ansible_date_time.epoch|int - item.stat.mtime) > (fcos_upgrade_days * 60 * 60 * 24)))
+
+  loop:  "{{ json_files.results }}"
+  loop_control:
+    index_var: i
+
+- name: get repo data json files if they don't exist or the one of the files is older than fcos_upgrade_days
+  uri:
+    url:  "https://builds.coreos.fedoraproject.org/streams/{{ fcos_channels[i] }}.json"
+    dest: "{{ fcos_downloaddir }}/{{ fcos_channels[i] }}.json"
+  when: inventory_hostname == download_hostname and (not item.stat.exists or ((ansible_date_time.epoch|int - item.stat.mtime) > (fcos_upgrade_days * 60 * 60 * 24)))
+  loop:  "{{ json_files.results }}"
+  loop_control:
+    index_var: i
+
+## only copies when time has passed > fcos_upgrade_days or the file doesn't exist at all
+#- copy:
+#    dest: "{{ proxmox_downloaddir }}/{{ fcos_channels[i] }}.json"
+#    content: "{{ fcos_channels[i] }} {{ ansible_date_time.epoch|int }}"
+#  when: inventory_hostname == download_hostname and (not item.stat.exists or ((ansible_date_time.epoch|int - item.stat.mtime) > (fcos_upgrade_days * 60 * 60 * 24)))
+#
+#  loop:  "{{ json_files.results }}"
+#  loop_control:
+#    index_var: i
+
+- slurp:
+    path: "{{ fcos_downloaddir }}/{{ fcos_channel }}.json"
+  register: fcos_channel_json
+  when: inventory_hostname == download_hostname
+
+- set_fact:
+    fcos_channel_content: "{{ fcos_channel_json.content|b64decode|from_json }}"
+  when: inventory_hostname == download_hostname
+
+#- debug:
+#    msg: "{{ fcos_channel_content }}"
+#  when: inventory_hostname == download_hostname
+
+- set_fact:
+    fcos_latest_coreos_download_url: "{{ fcos_channel_content |json_query('architectures.x86_64.artifacts.metal.formats.\"raw.xz\".disk.location') }}"
+    fcos_latest_coreos_filename:     "{{ fcos_channel_content |json_query('architectures.x86_64.artifacts.metal.formats.\"raw.xz\".disk.location') | basename }}"
+    fcos_latest_coreos_download_checksum: "sha256:{{ fcos_channel_content|json_query('architectures.x86_64.artifacts.metal.formats.\"raw.xz\".disk.sha256') }}"
+  when: inventory_hostname == download_hostname
+
+- debug:
+    msg:  "latest coreos: {{ fcos_latest_coreos_filename }}"
+  when: inventory_hostname == download_hostname
+
+# FIXME stat if the file already exists
+
+- name: stat if file already exists 
+  stat:
+    path: "{{ fcos_downloaddir }}/{{ fcos_latest_coreos_filename }}"
+  when: inventory_hostname == download_hostname
+  register: coreos_latest_filename
+
+- name: download image if it doesn't exist or checksum does not match
+  get_url:
+    url:      "{{ fcos_latest_coreos_download_url }}"
+    dest:     "{{ fcos_downloaddir }}/{{ fcos_latest_coreos_filename }}"
+    checksum: "{{ fcos_latest_coreos_download_checksum }}"
+    force:    "no"
+  when: inventory_hostname == download_hostname and not coreos_latest_filename.stat.exists
+
+# Tricky the variable fcos_latest_coreos_filename exists only on download_hostname host due to previous restrictions
+- name: Copy the file to the target hosts which avoids another download
+  synchronize:
+    src:  "{{ fcos_downloaddir }}/{{ hostvars[download_hostname].fcos_latest_coreos_filename }}"
+    dest: "{{ fcos_downloaddir }}/{{ hostvars[download_hostname].fcos_latest_coreos_filename }}"
+    mode: push
+  delegate_to: "{{ download_hostname }}"
+  when: inventory_hostname != download_hostname
+
+- action: fcos-download
+  when: inventory_hostname == download_hostname
+
+- debug:
+    msg: "{{ item }}  "
+  loop: "{{ fcos_os_version_list }}"
+  when: inventory_hostname == download_hostname
+
+- set_fact:
+     fcos_coreos_download_list: [] 
+
+- set_fact:
+     fcos_coreos_download_list:  "{{ fcos_coreos_download_list + [ 'https://builds.coreos.fedoraproject.org/prod/streams/' + item.channel + '/builds/' + item.os_version + '/x86_64/fedora-coreos-' + item.os_version  + '-metal.x86_64.raw.xz' ] }}"
+  loop: "{{ fcos_os_version_list }}"
+  when: inventory_hostname == download_hostname
+
+- debug:
+     msg:  "{{ item }}"
+  loop: "{{ fcos_coreos_download_list }}"
+  when: inventory_hostname == download_hostname
+
+- stat:
+    path: "{{ fcos_downloaddir }}/{{ item|basename }}"
+  loop: "{{ fcos_coreos_download_list }}"
+  when: inventory_hostname == download_hostname
+  register: fcos_coreos_images
+
+- name: "Not found images" 
+  debug:
+    msg: "{{ fcos_coreos_download_list[i] }}"
+  when: inventory_hostname == download_hostname and not item.stat.exists
+  loop:  "{{ fcos_coreos_images.results }}"
+  loop_control:
+    index_var: i
+
+- name: download image if it doesn't exist or checksum does not match
+  get_url:
+    url:  "{{ fcos_coreos_download_list[i] }}"
+    dest: "{{ fcos_downloaddir }}/{{ fcos_coreos_download_list[i]|basename }}"
+    force:    "no"
+  when: inventory_hostname == download_hostname and not item.stat.exists
+  loop:  "{{ fcos_coreos_images.results }}"
+  loop_control:
+    index_var: i
+
+- name: download image if it doesn't exist or checksum does not match
+  debug:
+    msg:  "{{ fcos_downloaddir }}/{{ item|basename }}"
+  when: inventory_hostname != download_hostname
+  loop: "{{ fcos_coreos_download_list }}"
+  loop_control:
+    index_var: i
+
+- name: download image if it doesn't exist or checksum does not match
+  synchronize:
+    src:  "{{ fcos_downloaddir }}/{{ item|basename }}"
+    dest: "{{ fcos_downloaddir }}/{{ item|basename }}"
+    mode: push
+  delegate_to: "{{ download_hostname }}"
+  when: inventory_hostname != download_hostname
+  loop: "{{ hostvars[download_hostname].fcos_coreos_download_list }}"
+  loop_control:
+    index_var: i

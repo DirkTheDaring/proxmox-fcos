@@ -1,0 +1,53 @@
+# this is a hidden if proxmox_tmpdir is defined or not logic
+# so if proxmox_tmpdir is defined create dir provided in variable
+#    if not proxmox_dir is defined create a random tmpdir
+#
+- name: create temporary script directory when proxmox_tmpdir already definied
+  file:
+    dest:  "{{ proxmox_tmpdir }}"
+    owner: root
+    group: root
+    state: directory
+    mode: 0700
+  when: "proxmox_tmpdir is defined"
+
+- block:
+  - name: create temporary script directory
+    tempfile:
+      state:  directory
+      suffix: proxmox
+    register: proxmox_tmpdir_result
+  - name: set proxmox_tmpdir to path of created tmpdir
+    set_fact:
+      proxmox_tmpdir: "{{ proxmox_tmpdir_result.path }}"
+  - set_fact:
+      proxmox_tmpdir_result:
+  when: "proxmox_tmpdir is not defined"
+
+- name: upload script to gather information from proxmox
+  copy:
+    src:   "{{ item }}"
+    dest:  "{{ proxmox_tmpdir }}/{{ item |basename }}"
+    owner: root
+    group: root
+    mode:  0755
+  loop:
+  - "bin/proxmox-to-json"
+
+- name: run script to gather information from proxmox
+  command: "{{ proxmox_tmpdir }}/proxmox-to-json"
+  register: proxmox_information
+  changed_when: false
+
+- name: put information into proxmox_host variable
+  set_fact:
+    proxmox_host: "{{ proxmox_information.stdout | from_json }}"
+
+- name: remove proxmox_information variable
+  set_fact:
+    proxmox_information:
+
+- name: delete temporary script directory
+  file:
+    dest:  "{{ proxmox_tmpdir }}"
+    state: absent
