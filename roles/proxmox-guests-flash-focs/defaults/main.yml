@@ -71,3 +71,5 @@ flash_list: ""  # is a comma separated string
 fcos_disable_zincati: False
 fcos_fcct_filename: 'fcct-x86_64-unknown-linux-gnu'
 fcos_latest_coreos_filename: "fedora-coreos-32.20200629.3.0-metal.x86_64.raw.xz"
+
+fcos_reverse_path_filter_quirk: False

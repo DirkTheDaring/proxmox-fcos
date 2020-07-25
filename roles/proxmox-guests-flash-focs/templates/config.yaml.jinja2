@@ -52,7 +52,7 @@ systemd:
       [Install]
       WantedBy=multi-user.target
 
-{% if 'scsi1_path' in proxmox[item.kvm_id] %}
+{% if item.kvm_id in proxmox and 'scsi1_path' in proxmox[item.kvm_id] %}
   - name: var-srv-data.mount
     enabled: true
     contents: |
@@ -68,6 +68,13 @@ systemd:
 
 storage:
   files:
+{% if fcos_reverse_path_filter_quirk is boolean and fcos_reverse_path_filter_quirk %}
+  - path: /etc/sysctl.d/reverse-path-filter.conf
+    contents: 
+      inline: |
+        net.ipv4.conf.default.rp_filter=0
+        net.ipv4.conf.*.rp_filter=0
+{% endif %}
   - path: /etc/resolv.conf
     user:
       name: root
