@@ -1,5 +1,5 @@
 - name: execute kvm creator script
   command: "{{ proxmox_tmpdir }}/{{hostvars[item].kvm_id }}/create-guest"
-  when: hostvars[item].kvm_id|string not in proxmox_host_guests
-  loop: "{{ proxmox_guests_list }}"
+  when: hostvars[item].os_name == 'fcos'
+  loop: "{{ flash_list }}"
   changed_when: false

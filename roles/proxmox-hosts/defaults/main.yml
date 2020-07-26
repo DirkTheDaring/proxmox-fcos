@@ -1,5 +1,3 @@
-
-
 # remove _offline to overwrite  all networks on your machine (WUHAHA...evil laughter....)
 #
 interfaces_offline:
@@ -19,7 +17,6 @@ resolv_conf_offline:
   nameserver:
   - 192.168.178.3 
   - fd00::256a:387:af4f:9a4b
-
 
 grub_options:  []
 #- kvm.ignore_msrs=1

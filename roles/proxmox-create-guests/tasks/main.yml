@@ -9,4 +9,4 @@
 - import_tasks: "download-fcct.yml"
 - import_tasks: "generate-flash-configuration.yml"
 - import_tasks: "flash-guest.yml"
-- import_tasks: "fail.yml"
+ #- import_tasks: "fail.yml"

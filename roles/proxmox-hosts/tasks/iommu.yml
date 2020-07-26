@@ -33,7 +33,6 @@
     create: yes
   loop: "{{ iommu_device_blacklist }}"
 
-
 - name: "create vfio-pci option /etc/modeprobe.d/iommu.conf"
   lineinfile:
     state:  present
@@ -42,7 +41,6 @@
     line:   "options vfio-pci ids={{ vfio_pci_list | join(',') }}{{ ' disable_vga=1' if vfio_disable_vga else '' }}"
     create: yes
   when: vfio_pci_list is defined and vfio_pci_list|length
-
 
 - name: "create kvm_amd option /etc/modeprobe.d/iommu.conf"
   lineinfile:

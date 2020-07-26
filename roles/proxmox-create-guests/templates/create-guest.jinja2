@@ -9,7 +9,7 @@ if [ -f "/etc/pve/qemu-server/{{ item.kvm_id }}.conf" ]; then
   qm destroy {{ item.kvm_id }}
 {% else  %}
   echo "{{ item.kvm_id }}: config exists"
-  exit 1
+  exit 0
 {% endif %}
 fi
 {% set onboot  = item.onboot |default(1) %}

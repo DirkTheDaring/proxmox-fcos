@@ -78,7 +78,7 @@ class ActionModule(ActionBase):
               fcos_channel = other_host['fcos_channel']
               if fcos_channel in ['stable', 'testing', 'next']:
                   continue
-              result['msg'] = "fcos_channel '"+fcos_channel+"' is  not one of  [stable, testing,next]"
+              result['msg'] = "fcos_channel '"+fcos_channel+"' value can be 'stable' or 'testing' or 'next'"
               result['changed'] = False
               result['failed'] = True
               return result

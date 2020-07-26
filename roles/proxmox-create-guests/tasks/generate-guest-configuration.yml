@@ -1,5 +1,5 @@
 - include_tasks: generate-guest-configuration-item.yml
-  when: hostvars[sub_inventory_hostname].kvm_id|string not in proxmox_host_guests
-  loop: "{{ proxmox_guests_list }}"
+  when: hostvars[sub_inventory_hostname].os_name == 'fcos'
+  loop: "{{ flash_list }}"
   loop_control:
     loop_var: "sub_inventory_hostname"

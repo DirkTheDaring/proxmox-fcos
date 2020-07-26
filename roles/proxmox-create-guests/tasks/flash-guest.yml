@@ -1,4 +1,4 @@
 - name: execute flash-fcos script
   command: "{{ proxmox_tmpdir }}/{{hostvars[item].kvm_id }}/flash-fcos"
-  when: hostvars[sub_inventory_hostname].os_name == 'fcos'
+  when: hostvars[item].os_name == 'fcos' 
   loop: "{{ flash_list }}"
