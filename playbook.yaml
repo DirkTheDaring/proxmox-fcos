@@ -1,4 +1,3 @@
----
 - hosts:
   - localhost
   gather_facts:     False
@@ -6,18 +5,16 @@
   roles:
   - ansible-validation
 
-- name: proxmox guests 
-  hosts:
-  - proxmox_guests
-  gather_facts:     False
-  any_errors_fatal: True
-  roles:
-  - proxmox-guest-init
-
 - name: proxmox flash fcos
   hosts:
   - proxmox_hosts
   roles:
-  - proxmox-create-kvm
-  - proxmox-flash-fcos
+  - proxmox-create-guests
 
+- name: prepare k8s
+  hosts:
+  - fedora_coreos_machines
+  gather_facts:     False
+  any_errors_fatal: True
+  roles:
+  - proxmox-prepare-k8s
