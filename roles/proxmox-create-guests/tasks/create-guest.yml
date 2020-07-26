@@ -1,0 +1,5 @@
+- name: execute kvm creator script
+  command: "{{ proxmox_tmpdir }}/{{hostvars[item].kvm_id }}/create-guest"
+  when: hostvars[item].kvm_id|string not in proxmox_host_guests
+  loop: "{{ proxmox_guests_list }}"
+  changed_when: false

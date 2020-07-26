@@ -1,12 +1,17 @@
 #!/usr/bin/env bash
-set -e
-{% for machine in proxmox_guests_list %}
-{% set item  = hostvars[machine]  %}
+{% set item  = hostvars[sub_inventory_hostname]  %}
 {% set kvm_host = item.kvm_host %}
 {% set item_host = hostvars[kvm_host] %}
+set -e
 if [ -f "/etc/pve/qemu-server/{{ item.kvm_id }}.conf" ]; then
-  echo "Skipping {{ item.kvm_id }}: config exists"
-else 
+{% if destroy %}
+  qm stop    {{ item.kvm_id }}
+  qm destroy {{ item.kvm_id }}
+{% else  %}
+  echo "{{ item.kvm_id }}: config exists"
+  exit 1
+{% endif %}
+fi
 {% set onboot  = item.onboot |default(1) %}
 {% set memory  = item.memory |default(2048) %}
 {% set balloon = item.balloon|default(memory/2)|int %}
@@ -18,11 +23,6 @@ else
 {% set disk2 = item.disk2|default(storage_size)|string %}
 {% set disk3 = item.disk3|default(storage_size)|string %}
 {% set scsi0 = disk0 if ':' in disk0 else storage_name + ':' + disk0 %}
-
-{% if machine in destroy_list %}
-  # qm stop    {{ item.kvm_id }}
-  # qm destroy {{ item.kvm_id }}
-{% endif %}
 
   qm create {{ item.kvm_id }} \
   --name    "{{ item.hostname | default(item.inventory_hostname) }}"\
@@ -66,6 +66,3 @@ else
     mkfs.xfs "$DEV" 
   fi
 {% endif %}
-  
-fi
-{% endfor %}

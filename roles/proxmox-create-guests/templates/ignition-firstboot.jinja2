@@ -1,0 +1,10 @@
+{% set item  = hostvars[sub_inventory_hostname]  %}
+{% set netmask = item.fcos_netmask if 'fcos_netmask' in item else fcos_netmask %}
+{% set gateway = item.fcos_gateway if 'fcos_gateway' in item else fcos_gateway %}
+{% set hostname= item.hostname if 'hostname' in item else item.inventory_hostname %}
+{% set network_device = item.fcos_default_network_device if 'fcos_default_network_device' in item else fcos_default_network_device %}
+{% set nameservers = item.fcos_nameservers if 'fcos_nameservers' in item else fcos_nameservers %}
+{% if  netmask is number %}
+{% set netmask = netmask | cidr_to_netmask %}
+{% endif %}
+ip={{ item.ansible_host }}::{{ gateway }}:{{ netmask }}:{{ hostname }}:{{ network_device }}:none:{{ nameservers|join(':') }}

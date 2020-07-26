@@ -129,8 +129,9 @@ class ActionModule(ActionBase):
          [ False, 'net1_macaddr', 'str'],
          [ False, 'net2_macaddr', 'str'],
          [ False, 'net3_macaddr', 'str'],
-         [ False, 'flash_list', 'str', 'valid_host_list'],
-         [ False, 'destroy_list', 'str', 'valid_host_list' ]
+         [ False, 'flash', 'bool'],
+#         [ False, 'flash', 'str', 'valid_host_list'],
+         [ False, 'destroy', 'bool' ]
 
          ]
          for name in proxmox_guests_group_list:

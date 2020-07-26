@@ -1,7 +1,32 @@
 macaddr0_list: []
 
 proxmox_downloaddir: "/ftp/pub/linux/fcos"
+fcos_root_dir: "/ftp/pub/linux/fcos"  # used in flsh template
+
 fcos_downloaddir: "/ftp/pub/linux/fcos"
 fcos_channels: ['stable', 'testing', 'next']
 fcos_channel: 'stable'
 fcos_upgrade_days: 1
+
+fcos_disable_zincati: False
+fcos_fcct_filename: 'fcct-x86_64-unknown-linux-gnu'
+fcos_bin_dir:  "/ftp/pub/linux/fcos"
+
+fcos_remove_packages:
+- nfs-utils-coreos
+fcos_install_packages:
+- audit
+- python3
+- pip
+- libselinux-python3
+- ethtool
+- ipset
+- ipvsadm
+- strace
+- nfs-utils
+
+fcos_override_sysconfig_docker: True
+fcos_netmask: 24
+fcos_gateway: ""
+fcos_nameservers: [ '', '' ]
+destroy: False

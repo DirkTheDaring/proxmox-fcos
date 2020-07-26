@@ -1,9 +1,35 @@
-- name: Create a directory if it does not exist
+# this is a hidden if proxmox_tmpdir is defined or not logic
+# so if proxmox_tmpdir is defined create dir provided in variable
+#    if not proxmox_dir is defined create a random tmpdir
+#
+- name: create temporary script directory when proxmox_tmpdir already definied
   file:
-    path:  "{{ item }}"
+    dest:  "{{ proxmox_tmpdir }}"
+    owner: root
+    group: root
     state: directory
-    mode: '0700'
-  loop:
-  - "{{ proxmox_tmpdir }}"
-  - "{{ proxmox_tmpdir }}/bin"
-  when: proxmox_guests_list |length > 0
+    mode: 0700
+  when: "proxmox_tmpdir is defined"
+
+- block:
+  - name: create temporary script directory
+    tempfile:
+      state:  directory
+      suffix: proxmox
+    register: proxmox_tmpdir_result
+  - name: set proxmox_tmpdir to path of created tmpdir
+    set_fact:
+      proxmox_tmpdir: "{{ proxmox_tmpdir_result.path }}"
+  - set_fact:
+      proxmox_tmpdir_result:
+  when: "proxmox_tmpdir is not defined"
+
+# From here proxmox_tmpdir exists and we can create directories
+- name: 
+  file:
+    dest:  "{{ proxmox_tmpdir }}/bin"
+    owner: root
+    group: root
+    state: directory
+    mode: 0755
+

@@ -17,17 +17,17 @@ class ActionModule(ActionBase):
          ansible_facts = {}
  
          proxmox_cluster = {}
-         for ansible_play_host_name in ansible_play_hosts_all:
-             ansible_play_host = hostvars[ansible_play_host_name]
-             proxmox_host = ansible_play_host['proxmox_host']
-             for guest_id in proxmox_host:
+         for play_host_name in ansible_play_hosts_all:
+             play_host = hostvars[play_host_name]
+             proxmox_host_guests = play_host['proxmox_host_guests']
+             for guest_id in proxmox_host_guests:
                  if guest_id in proxmox_cluster:
                      result['msg'] = "duplicate guest id in cluster: " + guest_id
                      result['failed'] = True
                      return result
-                 src_dict = proxmox_host[guest_id]
+                 src_dict = proxmox_host_guests[guest_id]
                  target_dict=src_dict.copy()
-                 target_dict['kvm_host'] = ansible_play_host_name
+                 target_dict['kvm_host'] = play_host_name
                  proxmox_cluster[guest_id] = target_dict
 #
          ansible_facts['proxmox_cluster'] = proxmox_cluster

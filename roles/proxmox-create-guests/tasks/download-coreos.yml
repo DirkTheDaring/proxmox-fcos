@@ -58,6 +58,11 @@
     fcos_latest_coreos_download_checksum: "sha256:{{ fcos_channel_content|json_query('architectures.x86_64.artifacts.metal.formats.\"raw.xz\".disk.sha256') }}"
   when: inventory_hostname == download_hostname
 
+- name: copy 'fcos_latest_coreos_filename' fact to other hosts 
+  set_fact:
+    fcos_latest_coreos_filename: "{{ hostvars[download_hostname].fcos_latest_coreos_filename }}"
+  when: inventory_hostname != download_hostname
+
 - debug:
     msg:  "latest coreos: {{ fcos_latest_coreos_filename }}"
   when: inventory_hostname == download_hostname

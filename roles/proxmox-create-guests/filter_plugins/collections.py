@@ -1,4 +1,4 @@
-#import netaddr
+import netaddr
 from netaddr import IPAddress
 import collections
 

@@ -1,0 +1,9 @@
+- name: upload script to gather information from proxmox
+  copy:
+    src:   "{{ item }}"
+    dest:  "{{ proxmox_tmpdir }}/{{ item |basename }}"
+    owner: root
+    group: root
+    mode:  0755
+  loop:
+  - "bin/proxmox-to-json"

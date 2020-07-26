@@ -1,0 +1,57 @@
+- name: again
+  debug:
+    msg: "{{ sub_inventory_hostname }}"
+
+- name: list
+  debug: msg={{ hostvars[sub_inventory_hostname].fcos_sshkeys_dir + '/*.pub'  }}
+
+- name:
+  set_fact:
+    fcos_sshkeys:  []
+    fcos_cacerts: []
+
+- name:
+  set_fact:
+    # default has sshkeys defined as emtpy list
+    fcos_sshkeys: "{{ fcos_sshkeys + [ lookup('file', item) ] }}"
+  loop: "{{ lookup('fileglob', hostvars[sub_inventory_hostname].fcos_sshkeys_dir + '/*.pub', wantlist=True ) }}"
+
+- name: list
+  debug: msg={{ hostvars[sub_inventory_hostname].fcos_cacerts_dir + '/*.crt'  }}
+
+# lookup the *.crt files in the loop, and the create per file an entry with filename and content, which can easily be used later on
+- name:
+  set_fact:
+    fcos_cacerts: "{{ fcos_cacerts + [ { \"filename\": item|basename, \"content\": lookup('file', item) } ] }}"
+  loop: "{{ lookup('fileglob', hostvars[sub_inventory_hostname].fcos_cacerts_dir + '/*.crt', wantlist=True ) }}"
+
+#- name:
+#  debug: msg={{ fcos_cacerts }}
+
+- name: Create a directory if it does not exist
+  file:
+    path:  "{{ proxmox_tmpdir }}/{{ hostvars[sub_inventory_hostname].kvm_id }}"
+    state: directory
+    mode: '0755'
+
+- name: Create config file for fcct compiler
+  template:
+    src:  'config.yaml.jinja2'
+    dest: "{{ proxmox_tmpdir }}/{{ hostvars[sub_inventory_hostname].kvm_id }}/config.yaml"
+    mode: '0644'
+
+- name:     create ignition config from fcct yaml file
+  command:  "bash -c '{{ fcos_bin_dir }}/{{ fcos_fcct_filename }} <{{ proxmox_tmpdir }}/{{ hostvars[sub_inventory_hostname].kvm_id }}/config.yaml >{{ proxmox_tmpdir }}/{{ hostvars[sub_inventory_hostname].kvm_id }}/config.ign'"
+  changed_when: false
+
+- name: Create config file for firstboot
+  template:
+    src:  'ignition-firstboot.jinja2'
+    dest: "{{ proxmox_tmpdir }}/{{ hostvars[sub_inventory_hostname].kvm_id }}/ignition.firstboot"
+    mode: '0644'
+
+- name: Create flash install script
+  template:
+    src:  'flash-fcos.jinja2'
+    dest: "{{ proxmox_tmpdir }}/{{ hostvars[sub_inventory_hostname].kvm_id }}/flash-fcos"
+    mode: '0755'

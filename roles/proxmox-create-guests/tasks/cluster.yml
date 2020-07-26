@@ -1,9 +1,0 @@
-- action: proxmox-cluster
-- action: proxmox-validate
-- action: proxmox-set-guests-vars
-
-- debug:
-    msg: "{{ proxmox_guests_list }}"
-
-  #- debug:
-  #  msg: "{{ proxmox_cluster }}"
