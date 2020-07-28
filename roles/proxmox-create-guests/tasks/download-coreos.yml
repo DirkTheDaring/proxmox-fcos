@@ -20,6 +20,8 @@
   loop_control:
     index_var: i
 
+# FIXME services are constantly failing (404, 302) sometimes. so you cannot realy upon that you get and answer
+
 - name: get repo data json files if they don't exist or the one of the files is older than fcos_upgrade_days
   uri:
     url:  "https://builds.coreos.fedoraproject.org/streams/{{ fcos_channels[i] }}.json"
