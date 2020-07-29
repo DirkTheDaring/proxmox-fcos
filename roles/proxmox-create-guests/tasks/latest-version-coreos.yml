@@ -1,0 +1,121 @@
+- set_fact:
+    download_hostname: "{{ ansible_play_hosts_all[0] }}"
+    fcos_channels: [ 'stable', 'testing', 'next' ]
+    proxmox_downloaddir: /var/srv/linux/fcos
+    fcos_downloaddir: /var/srv/linux/fcos
+    fcos_upgrade_days: 1
+
+# FIXME download and target dir might be different
+
+- file:
+    path:  "{{ proxmox_downloaddir }}"
+    owner: root
+    group: root
+    mode:  '0755'
+    state: directory
+
+- block:
+  - name: "debug execution" 
+    debug:
+      msg: "{{ download_hostname }}"
+
+  - name: "stat cached json files"
+    stat:
+      path: "{{ proxmox_downloaddir }}/{{ item }}.json"
+    loop: "{{ fcos_channels }}"
+    register: json_files
+
+#  - debug:
+#      msg: "{{ item.stat.exists  }}"
+#    loop:  "{{ json_files.results }}"
+#    loop_control:
+#      index_var: i
+#      label: "{{ item.invocation.module_args.path if 'invocation' in item  }}"
+
+# the uri download is a constant source of troubles
+# a) its not availabe 404
+# b) its moved (endless loop)
+# c) it not there at all
+# d) you have queried to much
+  - name: __xxx__
+    #set_fact:
+    #  xxx: "{{ item.stat.exists }}"
+    uri:
+      url:  "https://builds.coreos.fedoraproject.org/streams/{{ fcos_channels[i] }}.json"
+      dest: "{{ fcos_downloaddir }}/{{ fcos_channels[i] }}.json"
+    loop:  "{{ json_files.results }}"
+    loop_control:
+      index_var: i
+      label: "{{ item.invocation.module_args.path if 'invocation' in item  }}"
+    when:  not item.stat.exists or ((ansible_date_time.epoch|int - item.stat.mtime) > (fcos_upgrade_days * 60 * 60 * 24))
+    ignore_errors: yes
+    register: url_result
+
+#  - name: "stat cached json files again (if they do now exist)"
+#    stat:
+#      path: "{{ proxmox_downloaddir }}/{{ item }}.json"
+#    loop: "{{ fcos_channels }}"
+#    register: json_files
+
+  # it will fail on
+  # a) file not existing
+  # b) content no json
+  # --> therefore ignore errors in slurp, we evaualte this later
+  - slurp:
+      path: "{{ fcos_downloaddir }}/{{ fcos_channels[i] }}.json"
+    loop: "{{ fcos_channels }}"
+    loop_control:
+      index_var: i
+      label: "{{ fcos_channels[i] }}"
+    ignore_errors: yes
+    register: slurp_result
+
+#  - debug:
+#      msg: "{{ (item.content|b64decode|from_json) if not item.failed else '' }}"
+#    loop: "{{ slurp_result.results }}"
+
+  - set_fact:
+      fcos_downloads: "{{ fcos_downloads|default([])|union([item.content|b64decode|from_json] if not item.failed else [] ) }}"
+    loop: "{{ slurp_result.results }}"
+    loop_control:
+      index_var: i
+      label: "{{ fcos_channels[i] }}"
+
+#  - debug:
+#      msg: "{{ item }}"
+#    loop: "{{ fcos_downloads }}"
+
+#  - fail:
+##      msg: "EPIC FAILURE"
+
+  - set_fact:
+      download_url:      "{{ item | json_query('architectures.x86_64.artifacts.metal.formats.\"raw.xz\".disk.location') }}"
+      filename:         "{{ item | json_query('architectures.x86_64.artifacts.metal.formats.\"raw.xz\".disk.location') | basename }}"
+      checksum:   "sha256:{{ item | json_query('architectures.x86_64.artifacts.metal.formats.\"raw.xz\".disk.sha256') }}"
+    loop: "{{ fcos_downloads|list }}"
+    loop_control:
+      label: "{{ item.stream }}"
+    register: fcos_download_result
+
+#  - debug:
+#      msg: "{{ item.ansible_facts }}"
+#    loop: "{{ fcos_download_result.results }}"
+#    loop_control:
+#      index_var: i
+#      label: "{{ item.ansible_facts.filename }}"
+
+  - set_fact:
+      latest_fcos_versions: "{{ latest_fcos_versions|default({}) |combine( {  fcos_channels[i]: item.ansible_facts }) }}"
+    loop: "{{ fcos_download_result.results }}"
+    loop_control:
+      index_var: i
+      label: "{{ item.ansible_facts.filename }}"
+
+  - debug:
+      msg: "{{ latest_fcos_versions }}"
+
+#  - fail:
+#      msg: "EPIC FAILURE"
+
+  when: inventory_hostname == download_hostname
+
