@@ -116,8 +116,7 @@
 
   when: inventory_hostname == download_hostname
 
-- name: copy 'fcos_latest_versions' fact to other hosts 
+- name: Backwards compatability: set 'fcos_latest_versions'  for all hosts
   set_fact:
     fcos_latest_versions: "{{ hostvars[download_hostname].fcos_latest_versions }}"
-  when: inventory_hostname != download_hostname
 
