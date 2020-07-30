@@ -8,7 +8,6 @@ fcos_upgrade_days: 7
 
 fcos_channels: ['stable', 'testing', 'next']
 fcos_channel: 'stable'
-fcos_upgrade_days: 1
 
 fcos_disable_zincati: False
 fcos_fcct_filename: 'fcct-x86_64-unknown-linux-gnu'
