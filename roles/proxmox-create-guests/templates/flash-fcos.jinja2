@@ -10,7 +10,7 @@ set -e
 {% if 'os_version' in item %}
 {% set fcos_filename = "fedora-coreos-" + item.os_version + "-metal.x86_64.raw.xz" %}
 {% else  %}
-{% set fcos_filename = fcos_latest_coreos_filename %}
+{% set fcos_filename = fcos_latest_versions[fcos_channel].filename %}
 {% endif %}
 
 qm stop {{ item.kvm_id }}
