@@ -32,6 +32,9 @@
     register: all_versions
     changed_when: False
 
+  # scope of this block
+  when: inventory_hostname == download_hostname
+
 - name: Copy the file to the target hosts which avoids another download
   synchronize:
     src:  "{{ fcos_downloaddir }}/{{ fcos_channel }}/{{ fcos_latest_versions[fcos_channel].filename }}"
