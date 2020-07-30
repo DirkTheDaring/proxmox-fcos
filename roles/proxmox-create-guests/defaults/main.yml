@@ -2,8 +2,10 @@ macaddr0_list: []
 
 proxmox_downloaddir: "/ftp/pub/linux/fcos"
 fcos_root_dir: "/ftp/pub/linux/fcos"  # used in flsh template
-
 fcos_downloaddir: "/ftp/pub/linux/fcos"
+fcos_cachedir:    "/ftp/pub/linux/fcos/cache"
+fcos_upgrade_days: 7
+
 fcos_channels: ['stable', 'testing', 'next']
 fcos_channel: 'stable'
 fcos_upgrade_days: 1

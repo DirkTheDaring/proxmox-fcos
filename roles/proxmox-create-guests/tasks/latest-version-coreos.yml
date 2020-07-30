@@ -1,14 +1,11 @@
 - set_fact:
     download_hostname: "{{ ansible_play_hosts_all[0] }}"
-    fcos_channels: [ 'stable', 'testing', 'next' ]
-    proxmox_downloaddir: /var/srv/linux/fcos
-    fcos_downloaddir: /var/srv/linux/fcos
-    fcos_upgrade_days: 1
+
 
 # FIXME download and target dir might be different
-
+# for the fcos caching, maybe we should just have a caching directory
 - file:
-    path:  "{{ proxmox_downloaddir }}"
+    path:  "{{ fcos_cachedir }}"
     owner: root
     group: root
     mode:  '0755'
@@ -21,7 +18,7 @@
 
   - name: "stat cached json files"
     stat:
-      path: "{{ proxmox_downloaddir }}/{{ item }}.json"
+      path: "{{ fcos_cachedir }}/{{ item }}.json"
     loop: "{{ fcos_channels }}"
     register: json_files
 
@@ -42,7 +39,7 @@
     #  xxx: "{{ item.stat.exists }}"
     uri:
       url:  "https://builds.coreos.fedoraproject.org/streams/{{ fcos_channels[i] }}.json"
-      dest: "{{ fcos_downloaddir }}/{{ fcos_channels[i] }}.json"
+      dest: "{{ fcos_cachedir }}/{{ fcos_channels[i] }}.json"
     loop:  "{{ json_files.results }}"
     loop_control:
       index_var: i
@@ -53,7 +50,7 @@
 
 #  - name: "stat cached json files again (if they do now exist)"
 #    stat:
-#      path: "{{ proxmox_downloaddir }}/{{ item }}.json"
+#      path: "{{ fcos_cachedir }}/{{ item }}.json"
 #    loop: "{{ fcos_channels }}"
 #    register: json_files
 
@@ -62,7 +59,7 @@
   # b) content no json
   # --> therefore ignore errors in slurp, we evaualte this later
   - slurp:
-      path: "{{ fcos_downloaddir }}/{{ fcos_channels[i] }}.json"
+      path: "{{ fcos_cachedir }}/{{ fcos_channels[i] }}.json"
     loop: "{{ fcos_channels }}"
     loop_control:
       index_var: i
@@ -105,17 +102,22 @@
 #      label: "{{ item.ansible_facts.filename }}"
 
   - set_fact:
-      latest_fcos_versions: "{{ latest_fcos_versions|default({}) |combine( {  fcos_channels[i]: item.ansible_facts }) }}"
+      fcos_latest_versions: "{{ fcos_latest_versions|default({}) |combine( {  fcos_channels[i]: item.ansible_facts }) }}"
     loop: "{{ fcos_download_result.results }}"
     loop_control:
       index_var: i
       label: "{{ item.ansible_facts.filename }}"
 
   - debug:
-      msg: "{{ latest_fcos_versions }}"
+      msg: "{{ fcos_latest_versions }}"
 
 #  - fail:
 #      msg: "EPIC FAILURE"
 
   when: inventory_hostname == download_hostname
+
+- name: copy 'fcos_latest_versions' fact to other hosts 
+  set_fact:
+    fcos_latest_versions: "{{ hostvars[download_hostname].fcos_latest_versions }}"
+  when: inventory_hostname != download_hostname
 

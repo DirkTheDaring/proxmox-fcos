@@ -1,0 +1,63 @@
+- action: fcos-download
+  when: inventory_hostname == download_hostname
+
+- debug:
+    msg: "{{ item }}  "
+  loop: "{{ fcos_os_version_list }}"
+  when: inventory_hostname == download_hostname
+
+- set_fact:
+     fcos_coreos_download_list: [] 
+
+- set_fact:
+     fcos_coreos_download_list:  "{{ fcos_coreos_download_list + [ 'https://builds.coreos.fedoraproject.org/prod/streams/' + item.channel + '/builds/' + item.os_version + '/x86_64/fedora-coreos-' + item.os_version  + '-metal.x86_64.raw.xz' ] }}"
+  loop: "{{ fcos_os_version_list }}"
+  when: inventory_hostname == download_hostname
+
+- debug:
+     msg:  "{{ item }}"
+  loop: "{{ fcos_coreos_download_list }}"
+  when: inventory_hostname == download_hostname
+
+- stat:
+    path: "{{ fcos_downloaddir }}/{{ item|basename }}"
+  loop: "{{ fcos_coreos_download_list }}"
+  when: inventory_hostname == download_hostname
+  register: fcos_coreos_images
+
+- name: "Not found images" 
+  debug:
+    msg: "{{ fcos_coreos_download_list[i] }}"
+  when: inventory_hostname == download_hostname and not item.stat.exists
+  loop:  "{{ fcos_coreos_images.results }}"
+  loop_control:
+    index_var: i
+
+- name: download image if it doesn't exist or checksum does not match
+  get_url:
+    url:  "{{ fcos_coreos_download_list[i] }}"
+    dest: "{{ fcos_downloaddir }}/{{ fcos_coreos_download_list[i]|basename }}"
+    force:    "no"
+  when: inventory_hostname == download_hostname and not item.stat.exists
+  loop:  "{{ fcos_coreos_images.results }}"
+  loop_control:
+    index_var: i
+
+- name: "print downloaded"
+  debug:
+    msg:  "{{ fcos_downloaddir }}/{{ item|basename }}"
+  when: inventory_hostname != download_hostname
+  loop: "{{ fcos_coreos_download_list }}"
+  loop_control:
+    index_var: i
+
+- name: copy image
+  synchronize:
+    src:  "{{ fcos_downloaddir }}/{{ item|basename }}"
+    dest: "{{ fcos_downloaddir }}/{{ item|basename }}"
+    mode: push
+  delegate_to: "{{ download_hostname }}"
+  when: inventory_hostname != download_hostname
+  loop: "{{ hostvars[download_hostname].fcos_coreos_download_list }}"
+  loop_control:
+    index_var: i
