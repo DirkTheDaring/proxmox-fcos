@@ -176,3 +176,19 @@ storage:
 {{ item.content |indent(8,true) }}
 {% endfor %}
 {% endif %}
+
+  - path: /etc/systemd/network/10-flannel.link 
+    user:
+      name: root
+    group:
+      name: root
+    mode:   0644
+    contents:
+      inline: |
+        # /etc/systemd/network/10-flannel.link
+        # https://github.com/coreos/fedora-coreos-tracker/issues/574
+        # https://github.com/coreos/flannel/issues/1155
+        [Match]
+        OriginalName=flannel*
+        [Link]
+        MACAddressPolicy=none
