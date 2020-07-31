@@ -1,17 +1,25 @@
 - set_fact:
     download_hostname: "{{ ansible_play_hosts_all[0] }}"
 
-
 # FIXME download and target dir might be different
 # for the fcos caching, maybe we should just have a caching directory
-- file:
-    path:  "{{ fcos_cachedir }}"
-    owner: root
-    group: root
-    mode:  '0755'
-    state: directory
-
+ 
 - block:
+  - file:
+      path:  "{{ fcos_cachedir }}"
+      owner: root
+      group: root
+      mode:  '0755'
+      state: directory
+  
+  - file:
+      path:  "{{ fcos_downloaddir }}/{{ item }}"
+      owner: root
+      group: root
+      mode:  '0755'
+      state: directory
+    loop: "{{ fcos_channels }}"
+   
   - name: "debug execution" 
     debug:
       msg: "{{ download_hostname }}"
@@ -108,15 +116,81 @@
       index_var: i
       label: "{{ item.ansible_facts.filename }}"
 
-  - debug:
+  - name: the latests versions 
+    debug:
       msg: "{{ fcos_latest_versions }}"
 
-#  - fail:
-#      msg: "EPIC FAILURE"
+  - name: show list of guest which require fcos
+    debug:
+      msg: "{{ item }}"
+    when: "'os_name' in hostvars[item] and hostvars[item].os_name == 'fcos'"
+    loop: "{{ groups[proxmox_guests_group] }}"
 
+  - name: create list of guest which require fcos, with channel, version, download_url and filename
+    set_fact:
+      channel: "{{ hostvars[item].fcos_channel|default(fcos_channel)   }}"
+      download_url: >-
+       {% if not 'os_version' in hostvars[item] %}{{fcos_latest_versions[(hostvars[item].fcos_channel|default(fcos_channel))].download_url}}{% else %}https://builds.coreos.fedoraproject.org/prod/streams/{{ hostvars[item].fcos_channel|default(fcos_channel) }}/builds/{{ hostvars[item].os_version|default('xxx') }}/x86_64/fedora-coreos-{{ hostvars[item].os_version|default('xxx') }}-metal.x86_64.raw.xz{% endif %}
+      filename: >-
+       {% if not 'os_version' in hostvars[item] %}{{fcos_latest_versions[(hostvars[item].fcos_channel|default(fcos_channel))].filename}}{% else %}fedora-coreos-{{ hostvars[item].os_version|default('xxx') }}-metal.x86_64.raw.xz{% endif %}
+      checksum: >-
+       {% if not 'os_version' in hostvars[item] %}{{fcos_latest_versions[(hostvars[item].fcos_channel|default(fcos_channel))].checksum}}{% endif %}
+
+    when: "'os_name' in hostvars[item] and hostvars[item].os_name == 'fcos'"
+    loop: "{{ groups[proxmox_guests_group] }}"
+    register: fcos_download_result
+
+  - name: create a dict, which has unique entries for each channel+version so that a download is only considered once later
+    set_fact:
+      fcos_required_versions_dict: "{{ fcos_required_versions_dict|default({}) |combine( {  item.ansible_facts.channel + item.ansible_facts.filename: item.ansible_facts }) }}"
+    loop: "{{ fcos_download_result.results }}"
+    loop_control:
+      index_var: i
+      label: "{{ item.ansible_facts.filename }}"
+
+  - name: result
+    debug:
+      msg: "{{ fcos_required_versions_dict  }}"
+
+  - name: create list of to be downloaded
+    set_fact:
+      fcos_required_versions: "{{ fcos_required_versions|default([])|union([item.value]) }}"
+    loop: "{{ fcos_required_versions_dict|dict2items }}"
+    loop_control:
+      index_var: i
+      label: "{{ item.key }}"
+
+  - name: result2
+    debug:
+      msg: "{{ fcos_required_versions }}"
+
+  - name: check if not already there 
+    stat:
+      path: "{{ fcos_downloaddir }}/{{ item.channel }}/{{ item.filename }}"
+    loop: "{{ fcos_required_versions  }}"
+    register: fcos_coreos_images
+    loop_control:
+      label: "{{ item.filename }}"
+ 
+  - name: download image if it doesn't exist or checksum does not match
+    get_url:
+      url:  "{{ fcos_required_versions[i].download_url }}"
+      dest: "{{ fcos_downloaddir }}/{{ fcos_required_versions[i].channel }}/{{ fcos_required_versions[i].filename }}"
+      force:    "no"
+    when: not item.stat.exists
+    loop:  "{{ fcos_coreos_images.results }}"
+    loop_control:
+      index_var: i
+      #label: "{{ item.stat.path }}"
+
+ 
   when: inventory_hostname == download_hostname
 
-- name: set 'fcos_latest_versions' for all hosts
+
+
+- name: set 'fcos_required_versions' for all hosts
   set_fact:
-    fcos_latest_versions: "{{ hostvars[download_hostname].fcos_latest_versions }}"
+    fcos_required_versions: "{{ hostvars[download_hostname].fcos_required_versions }}"
   when: inventory_hostname != download_hostname
+
+

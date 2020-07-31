@@ -1,0 +1,11 @@
+- name: copy images to other hosts
+  synchronize:
+    src:  "{{ fcos_downloaddir }}/{{ item.channel }}/{{ item.filename }}"
+    dest: "{{ fcos_downloaddir }}/{{ item.channel }}/{{ item.filename }}"
+    mode: push
+  delegate_to: "{{ download_hostname }}"
+  when: inventory_hostname != download_hostname
+  loop: "{{ fcos_required_versions  }}"
+  loop_control:
+    label: "{{ item.filename }}"
+ 
