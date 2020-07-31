@@ -23,7 +23,7 @@ if [ ! -e "{{ proxmox_host_guests[kvm_id].scsi0_path }}" ]; then
   exit 1
 fi
 
-xz -dc "{{ fcos_root_dir }}/{{ fcos_filename }}"|dd of="{{ proxmox_host_guests[kvm_id].scsi0_path }}"
+xz -dc "{{ fcos_root_dir }}/{{ channel }}/{{ fcos_filename }}"|dd of="{{ proxmox_host_guests[kvm_id].scsi0_path }}"
 cd "{{ proxmox_tmpdir }}/{{ kvm_id }}"
 DEV=$(losetup --partscan --show --find "{{ proxmox_host_guests[kvm_id].scsi0_path }}")
 if [ -e "${DEV}p1" ]; then

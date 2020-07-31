@@ -5,7 +5,6 @@
 - import_tasks: "generate-guest-configuration.yml"
 - import_tasks: "create-guest.yml"
 - import_tasks: "gather-information.yml"
-- import_tasks: "latest-version-coreos.yml"
 - import_tasks: "coreos-download.yml"
 - import_tasks: "coreos-synchronize.yml"
 - import_tasks: "download-fcct.yml"

@@ -54,8 +54,11 @@ systemd:
       Type=oneshot
       ExecCondition=/usr/bin/test ! -f /etc/package-installer.done
 {% if remove_packages|length > 0 %}
-      ExecStart=/usr/bin/rpm-ostree override remove {{ remove_packages| join(" ") }}
+      ExecStart=-/usr/bin/rpm-ostree override remove {{ remove_packages| join(" ") }}
 {% endif %}
+      # FIXME install at least python3 as package so that ansible can function normal
+      #       do this in a separate step, as any other packages might fail, but then we 
+      #       can use ansible on the host with python to fix the rest
       ExecStart=/usr/bin/rpm-ostree install {{ item.fcos_install_packages|default(fcos_install_packages) | join(" ") }}
       ExecStartPost=/usr/bin/touch /etc/package-installer.done
       ExecStartPost=/usr/sbin/shutdown -r now
