@@ -34,9 +34,13 @@
     state: directory
     mode: '0755'
 
+- name:
+  set_fact:
+    fcos_config_yaml_template: "{{ hostvars[sub_inventory_hostname].fcos_config_yaml_template if 'fcos_config_yaml_template'in hostvars[sub_inventory_hostname] else fcos_config_yaml_template_default  }}"
+
 - name: Create config file for fcct compiler
   template:
-    src:  'config.yaml.jinja2'
+    src:  "{{ fcos_config_yaml_template }}"
     dest: "{{ proxmox_tmpdir }}/{{ hostvars[sub_inventory_hostname].kvm_id }}/config.yaml"
     mode: '0644'
 

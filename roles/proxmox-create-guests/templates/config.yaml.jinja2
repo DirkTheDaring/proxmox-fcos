@@ -1,5 +1,6 @@
 {% set item  = hostvars[sub_inventory_hostname]  %}
 {% set kvm_id = item.kvm_id|string %}
+
 {% if not kvm_id in proxmox_host_guests %}
 # 
 # PROXOMOX GUEST ID: {{ kvm_id }}
@@ -59,7 +60,11 @@ systemd:
       # FIXME install at least python3 as package so that ansible can function normal
       #       do this in a separate step, as any other packages might fail, but then we 
       #       can use ansible on the host with python to fix the rest
-      ExecStart=/usr/bin/rpm-ostree install {{ item.fcos_install_packages|default(fcos_install_packages) | join(" ") }}
+      ExecStart=/usr/bin/sed -i '/\[updates\]/,/^\[/ s/^enabled=.*$/enabled=0/'     /etc/yum.repos.d/fedora-updates.repo
+      ExecStart=/usr/bin/rpm-ostree install python3 libselinux-python3
+      ExecStart=/usr/bin/sed -i '/\[updates\]/,/^\[/ s/^enabled=.*$/enabled=1/'     /etc/yum.repos.d/fedora-updates.repo
+      ExecStart=/usr/bin/sed -i '/^\[updates\]/a exclude=python3* python3-selinux*' /etc/yum.repos.d/fedora-updates.repo
+      ExecStart=/usr/bin/rpm-ostree install --idempotent {{ item.fcos_install_packages|default(fcos_install_packages) | join(" ") }}
       ExecStartPost=/usr/bin/touch /etc/package-installer.done
       ExecStartPost=/usr/sbin/shutdown -r now
 
@@ -167,7 +172,6 @@ storage:
 {% endif %}
 
 {% for item in fcos_cacerts %}
-
   - path: /etc/pki/ca-trust/source/anchors/{{ item.filename }}
     user:
       name: root
@@ -178,7 +182,6 @@ storage:
       inline: |
 {{ item.content |indent(8,true) }}
 {% endfor %}
-{% endif %}
 
   - path: /etc/systemd/network/10-flannel.link 
     user:
@@ -195,3 +198,5 @@ storage:
         OriginalName=flannel*
         [Link]
         MACAddressPolicy=none
+
+{% endif %}

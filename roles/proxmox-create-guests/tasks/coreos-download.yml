@@ -186,11 +186,7 @@
  
   when: inventory_hostname == download_hostname
 
-
-
 - name: set 'fcos_required_versions' for all hosts
   set_fact:
     fcos_required_versions: "{{ hostvars[download_hostname].fcos_required_versions }}"
   when: inventory_hostname != download_hostname
-
-

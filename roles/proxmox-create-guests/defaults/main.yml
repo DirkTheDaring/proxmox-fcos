@@ -1,4 +1,7 @@
 macaddr0_list: []
+proxmox_tmpdir: "/tmp/px"
+
+fcos_config_yaml_template_default: "config.yaml.jinja2"
 
 proxmox_downloaddir: "/ftp/pub/linux/fcos"
 fcos_root_dir: "/ftp/pub/linux/fcos"  # used in flsh template

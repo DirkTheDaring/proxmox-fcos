@@ -13,6 +13,7 @@
   until:  result is succeeded
   delegate_to: localhost
 
+# FIXME might not work, if system cannot install python, the "command" will not work
 # https://stackoverflow.com/questions/44134642/how-to-retry-ansible-task-that-may-fail
 #- command: /usr/bin/false
 - command: systemctl start package-installer.service
