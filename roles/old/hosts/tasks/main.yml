@@ -1,2 +1,0 @@
-- debug:
-    msg: "{{ ansible_host }} {{ config_name }}/{{ config_stage }} - {{ ssh_authorized_keys_dir }}"

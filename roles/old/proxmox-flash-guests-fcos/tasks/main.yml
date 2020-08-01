@@ -1,8 +1,0 @@
-- import_tasks: "pre-action.yml"
-#- import_tasks: "preflight.yml"
-- import_tasks: "directory-layout.yml"
-  #- import_tasks: "download-coreos.yml"
-  #- import_tasks: "download-fcct.yml"
-- import_tasks: "variables-proxmox.yml"
-- import_tasks: "templates.yml"
-- import_tasks: "flash.yml"
