@@ -63,7 +63,7 @@ systemd:
       ExecStart=/usr/bin/sed -i '/\[updates\]/,/^\[/ s/^enabled=.*$/enabled=0/'     /etc/yum.repos.d/fedora-updates.repo
       ExecStart=/usr/bin/rpm-ostree install python3 libselinux-python3
       ExecStart=/usr/bin/sed -i '/\[updates\]/,/^\[/ s/^enabled=.*$/enabled=1/'     /etc/yum.repos.d/fedora-updates.repo
-      ExecStart=/usr/bin/sed -i '/^\[updates\]/a exclude=python3* python3-selinux*' /etc/yum.repos.d/fedora-updates.repo
+      ExecStart=/usr/bin/sed -i '/^\[updates\]/a exclude=python3-selinux libselinux libselinux-utils' /etc/yum.repos.d/fedora-updates.repo
       ExecStart=/usr/bin/rpm-ostree install --idempotent {{ item.fcos_install_packages|default(fcos_install_packages) | join(" ") }}
       ExecStartPost=/usr/bin/touch /etc/package-installer.done
       ExecStartPost=/usr/sbin/shutdown -r now

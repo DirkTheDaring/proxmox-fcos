@@ -45,14 +45,14 @@ fi
   --scsi3   {{ disk3 if ':' in disk3 else storage_name + ':' + disk3 }}\
 {% endif  %}
   --scsihw  virtio-scsi-pci\
-{% if 'macaddr0' in item %}
-  --net0    virtio={{ item.macaddr0|upper }},bridge=vmbr0\
+{% if 'net0_macaddr' in item %}
+  --net0    virtio={{ item.net0_macaddr|upper }},bridge=vmbr0\
 {% else  %}
   --net0    virtio,bridge=vmbr0\
 {% endif  %}
 {% if 'bridge1' in item %}
-{% if 'macaddr1' in item %}
-  --net1    virtio={{ item.macaddr1|upper }},bridge={{ item.bridge1 }}\
+{% if 'net1_macaddr' in item %}
+  --net1    virtio={{ item.net1_macaddr1|upper }},bridge={{ item.bridge1 }}\
 {% else  %}
   --net1    virtio,bridge={{ item.bridge1 }}\
 {% endif  %}
