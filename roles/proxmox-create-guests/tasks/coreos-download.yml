@@ -1,10 +1,15 @@
 - set_fact:
     download_hostname: "{{ ansible_play_hosts_all[0] }}"
 
+
 # FIXME download and target dir might be different
 # for the fcos caching, maybe we should just have a caching directory
  
 - block:
+  - name: "print download hostname"
+    debug:
+      msg: "{{ download_hostname }} == {{ inventory_hostname }}"
+
   - file:
       path:  "{{ fcos_cachedir }}"
       owner: root
@@ -142,28 +147,36 @@
 
   - name: create a dict, which has unique entries for each channel+version so that a download is only considered once later
     set_fact:
-      fcos_required_versions_dict: "{{ fcos_required_versions_dict|default({}) |combine( {  item.ansible_facts.channel + item.ansible_facts.filename: item.ansible_facts }) }}"
+      fcos_required_versions_dict: "{{ fcos_required_versions_dict|default({}) | combine( {  item.ansible_facts.channel + item.ansible_facts.filename: item.ansible_facts }) }}"
+    when: "'ansible_facts' in item and 'filename' in item.ansible_facts and 'channel' in item.ansible_facts"
     loop: "{{ fcos_download_result.results }}"
     loop_control:
       index_var: i
-      label: "{{ item.ansible_facts.filename }}"
+      label: "{{ item.ansible_facts.filename if 'ansible_facts' in item else '' }}"
 
   - name: result
     debug:
       msg: "{{ fcos_required_versions_dict  }}"
 
+  - debug:
+      msg: "{{ fcos_required_versions_dict| dict2items }}"
+
   - name: create list of to be downloaded
     set_fact:
       fcos_required_versions: "{{ fcos_required_versions|default([])|union([item.value]) }}"
-    loop: "{{ fcos_required_versions_dict|dict2items }}"
-    loop_control:
-      index_var: i
-      label: "{{ item.key }}"
-
+    loop: "{{ fcos_required_versions_dict|default({})| dict2items }}"
+#    loop_control:
+#      index_var: i
+#      label: "{{ item.key }}"
+#
   - name: result2
     debug:
       msg: "{{ fcos_required_versions }}"
 
+#  - fail:
+#      msg: "now failed"
+#
+ 
   - name: check if not already there 
     stat:
       path: "{{ fcos_downloaddir }}/{{ item.channel }}/{{ item.filename }}"
@@ -183,10 +196,17 @@
       index_var: i
       #label: "{{ item.stat.path }}"
 
- 
   when: inventory_hostname == download_hostname
 
 - name: set 'fcos_required_versions' for all hosts
   set_fact:
     fcos_required_versions: "{{ hostvars[download_hostname].fcos_required_versions }}"
   when: inventory_hostname != download_hostname
+
+
+- name: set 'fcos_latest_versions' for all hosts
+  set_fact:
+    fcos_latest_versions: "{{ hostvars[download_hostname].fcos_latest_versions }}"
+  when: inventory_hostname != download_hostname
+
+
