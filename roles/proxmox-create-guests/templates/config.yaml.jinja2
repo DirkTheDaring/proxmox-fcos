@@ -60,9 +60,9 @@ systemd:
       # FIXME install at least python3 as package so that ansible can function normal
       #       do this in a separate step, as any other packages might fail, but then we 
       #       can use ansible on the host with python to fix the rest
-      ExecStart=/usr/bin/sed -i '/\[updates\]/,/^\[/ s/^enabled=.*$/enabled=0/'     /etc/yum.repos.d/fedora-updates.repo
-      ExecStart=/usr/bin/rpm-ostree install python3 libselinux-python3
-      ExecStart=/usr/bin/sed -i '/\[updates\]/,/^\[/ s/^enabled=.*$/enabled=1/'     /etc/yum.repos.d/fedora-updates.repo
+      #ExecStart=/usr/bin/sed -i '/\[updates\]/,/^\[/ s/^enabled=.*$/enabled=0/'     /etc/yum.repos.d/fedora-updates.repo
+      #ExecStart=/usr/bin/rpm-ostree install python3 libselinux-python3
+      #ExecStart=/usr/bin/sed -i '/\[updates\]/,/^\[/ s/^enabled=.*$/enabled=1/'     /etc/yum.repos.d/fedora-updates.repo
       ExecStart=/usr/bin/sed -i '/^\[updates\]/a exclude=python3-selinux libselinux libselinux-utils' /etc/yum.repos.d/fedora-updates.repo
       ExecStart=/usr/bin/rpm-ostree install --idempotent {{ item.fcos_install_packages|default(fcos_install_packages) | join(" ") }}
       ExecStartPost=/usr/bin/touch /etc/package-installer.done
@@ -146,6 +146,27 @@ storage:
         addresses={{ item.ansible_host }}/{{ netmask }}
         gateway={{ gateway }}
         dns={{ nameservers | join(";") }}
+
+  - path: /etc/selinux/config
+    user:
+      name: root
+    group:
+      name: root
+    mode:   0644
+    overwrite: true
+    contents:
+      inline: |
+        # This file controls the state of SELinux on the system.
+        # SELINUX= can take one of these three values:
+        #     enforcing - SELinux security policy is enforced.
+        #     permissive - SELinux prints warnings instead of enforcing.
+        #     disabled - No SELinux policy is loaded.
+        SELINUX=disabled
+        # SELINUXTYPE= can take one of these three values:
+        #     targeted - Targeted processes are protected,
+        #     minimum - Modification of targeted policy. Only selected processes are protected.
+        #     mls - Multi Level Security protection.
+        SELINUXTYPE=targeted
 
 {% if override_sysconfig_docker %}
   - path: /etc/sysconfig/docker
