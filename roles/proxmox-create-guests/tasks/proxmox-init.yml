@@ -3,5 +3,3 @@
 - name: "flash_list" 
   debug:
     msg: "{{ flash_list }}"
-#- debug:
-#    msg: "{{ proxmox_guests_list }}"
