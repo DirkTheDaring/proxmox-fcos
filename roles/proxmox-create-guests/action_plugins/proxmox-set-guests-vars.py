@@ -68,14 +68,17 @@ class ActionModule(ActionBase):
              guest = hostvars[item]
              if 'flash' not in guest:
                  continue
-             if guest['flash']:
+             val = guest['flash']
+             # sometimes a boolean is returned, sometimes a string --> cast it to string, as string to boolean does not what you would expect
+             val = str(val)
+             val = val.lower()
+             if val in [ 'true' ]:
                  flash_list.append(item)
 
          if 'flash' in task_vars:
              str_list = task_vars['flash']
-             self.create_list_from_str(flash_list, str_list,proxmox_guests_list)
+             self.create_list_from_str(flash_list, str_list, proxmox_guests_list)
 
-         print(flash_list)
          ansible_facts["flash_list"] = flash_list
          result['ansible_facts'] = ansible_facts
          result['changed'] = False
