@@ -4,9 +4,9 @@ DIRNAME=$(dirname "$0")
 cd "$DIRNAME"
 
 # determine config_stage and config_name from filename
-BASENAME=$(basename "$0")
-CONFIG_NAME=$(awk '-F[.-]' '{ print $2}' <<<"$BASENAME")
-CONFIG_STAGE=$(awk '-F[.-]' '{ print $3}' <<<"$BASENAME")
+BASENAME=$(basename -s .sh "$0")
+CONFIG_NAME=$(awk '-F[-]' '{ print $2}' <<<"$BASENAME")
+CONFIG_STAGE=$(awk '-F[-]' '{ print $3}' <<<"$BASENAME")
 
 # checking
 if [ -z "$CONFIG_NAME" ]; then 

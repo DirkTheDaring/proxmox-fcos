@@ -50,7 +50,8 @@ systemd:
       [Unit]
       Requires=network-online.target
       After=network-online.target NetworkManager.service
-      Before=sshd.service  # run before a user can login
+      # run this service before a user can login with sshd
+      Before=sshd.service
       [Service]
       Type=oneshot
       ExecCondition=/usr/bin/test ! -f /etc/package-installer.done

@@ -1,3 +1,5 @@
+# FIXME you need to check if you can sync the stuff (do you have the key)
+
 - name: copy images to other hosts
   synchronize:
     src:  "{{ fcos_downloaddir }}/{{ item.channel }}/{{ item.filename }}"

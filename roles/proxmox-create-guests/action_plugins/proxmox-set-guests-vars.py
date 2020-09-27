@@ -66,6 +66,7 @@ class ActionModule(ActionBase):
          flash_list=[]
          for item in proxmox_guests_list:
              guest = hostvars[item]
+             #print(guest)
              if 'flash' not in guest:
                  continue
              val = guest['flash']
@@ -77,6 +78,7 @@ class ActionModule(ActionBase):
 
          if 'flash' in task_vars:
              str_list = task_vars['flash']
+             print(str_list)
              self.create_list_from_str(flash_list, str_list, proxmox_guests_list)
 
          ansible_facts["flash_list"] = flash_list
