@@ -27,9 +27,11 @@ fi
 xz -dc "{{ fcos_root_dir }}/{{ channel }}/{{ fcos_filename }}"|dd of="{{ proxmox_host_guests[kvm_id].scsi0_path }}"
 cd "{{ proxmox_tmpdir }}/{{ kvm_id }}"
 DEV=$(losetup --partscan --show --find "{{ proxmox_host_guests[kvm_id].scsi0_path }}")
-if [ -e "${DEV}p1" ]; then
+BOOT_DEV=$(LANG= fdisk -l $DEV |grep -m 1 'Linux filesystem$'|cut -d' ' -f1)
+
+if [ -e "${BOOT_DEV}" ]; then
   mkdir -p mnt
-  mount "${DEV}p1" mnt
+  mount "${BOOT_DEV}" mnt
   mkdir -p      mnt/ignition/
   cp config.ign mnt/ignition/
   cp ignition.firstboot mnt/
