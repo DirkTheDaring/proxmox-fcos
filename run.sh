@@ -23,13 +23,13 @@ if [ ! -d "inventory/$CONFIG_STAGE" ]; then
   echo  "inventory/$CONFIG_STAGE is not a directory."
   exit 1  
 fi
-
+# sequence matters, config_name and config_stage need to be set first!
 ansible-playbook playbook.yaml \
+        -e config_name=$CONFIG_NAME \
+	-e config_stage=$CONFIG_STAGE \
 	-i inventory/all.yaml \
 	-i inventory/cluster.yaml \
 	-i inventory/fcos.yaml \
 	-i inventory/$CONFIG_STAGE/inventory.yaml \
-        -e config_name=$CONFIG_NAME \
-	-e config_stage=$CONFIG_STAGE \
-	$CONFIG \
+        $CONFIG \
 	$*

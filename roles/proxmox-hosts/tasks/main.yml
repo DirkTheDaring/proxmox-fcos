@@ -1,15 +1,17 @@
-- import_tasks: "modules.yml"
-- import_tasks: "iommu.yml"
-- import_tasks: "kvm.yml"
-- import_tasks: "grub.yml"
-- import_tasks: "sysctl.yml"
 - import_tasks: "network.yml"
-- import_tasks: "resolv.yml"
-- import_tasks: "ntp.yml"
-- import_tasks: "cacertificates.yml"
-- import_tasks: "certificates.yml"
-
 - import_tasks: "subscription.yml"
 - import_tasks: "packages.yml"
 - import_tasks: "scripts.yml"
 - import_tasks: "vimrc.yml"
+
+- import_tasks: "modules.yml"
+- import_tasks: "iommu.yml"
+- import_tasks: "kvm.yml"
+
+- import_tasks: "grub.yml"
+- import_tasks: "sysctl.yml"
+
+#- import_tasks: "resolv.yml"
+#- import_tasks: "ntp.yml"
+#- import_tasks: "cacertificates.yml"
+#- import_tasks: "certificates.yml"

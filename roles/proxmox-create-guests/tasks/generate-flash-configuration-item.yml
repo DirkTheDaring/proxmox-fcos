@@ -2,8 +2,21 @@
   debug:
     msg: "{{ sub_inventory_hostname }}"
 
+# - name: dump all
+#   set_fact:
+#     allvars: |
+#       {{ hostvars |to_nice_json }}
+# 
+# - debug: 
+#     msg: "{{ allvars.split('\n') }}"
+# 
+# - fail:
+#     msg: "STOP"
+
 - name: list
   debug: msg={{ hostvars[sub_inventory_hostname].fcos_sshkeys_dir + '/*.pub'  }}
+
+
 
 - name:
   set_fact:

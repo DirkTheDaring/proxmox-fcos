@@ -35,6 +35,7 @@ if [ -e "${BOOT_DEV}" ]; then
   mkdir -p      mnt/ignition/
   cp config.ign mnt/ignition/
   cp ignition.firstboot mnt/
+  chmod 777 mnt/ignition/*
   umount mnt
 fi
 losetup --detach "$DEV"

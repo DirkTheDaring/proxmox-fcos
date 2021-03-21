@@ -9,17 +9,25 @@ iface {{ interface.name }} inet manual
 
 auto {{ interface.name }}
 iface {{ interface.name }} inet static
-	address {{ ansible_default_ipv4.address }}
-	netmask {{ interface.netmask }}
-	gateway {{ interface.gateway }}
-	bridge_ports {{ interface.ports | join(" ") }}
-	bridge_stp off
-	bridge_fd 0
+        address {{ interface.address }}
+        netmask {{ interface.netmask }}
+        gateway {{ interface.gateway }}
+        bridge_ports {{ interface.ports | join(" ") }}
+        bridge_stp off
+        bridge_fd 0
 {% if interface.proxmox_host_network_quirk %}
 {% for port in interface.ports %}
-	pre-up  ethtool -K {{ port }} tso off gso off
+        pre-up  ethtool -K {{ port }} tso off gso off
 {% endfor %}
-	post-up ethtool -K {{ interface.name }} tso off gso off
+        post-up ethtool -K {{ interface.name }} tso off gso off
 {% endif %}
 {% endif %}
+{% if interface.type == "private" %}
+
+auto {{ interface.name }}
+iface {{ interface.name }} inet static
+        address {{ interface.address }}
+        netmask {{ interface.netmask }}
+{% endif %}
 {% endfor %}
+
