@@ -1,5 +1,12 @@
 # FIXME you need to check if you can sync the stuff (do you have the key)
 
+- name: Create a directory if it does not exist
+  ansible.builtin.file:
+    path: "{{ fcos_downloaddir }}/{{ item.channel }}"
+    state: directory
+    mode: '0755'
+  loop: "{{ fcos_required_versions  }}"
+
 - name: copy images to other hosts
   synchronize:
     src:  "{{ fcos_downloaddir }}/{{ item.channel }}/{{ item.filename }}"
