@@ -21,3 +21,4 @@
   - "show_pci_acs.sh"
   - "vbios-dumper.sh"
   - "iommu_groups.sh"
+  - "disk-devices.sh"
