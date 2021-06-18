@@ -45,6 +45,25 @@ class ActionModule(ActionBase):
                  result['msg'] = "attribute must be a int: " + attr_name
                  return result
 
+             elif attr_type == 'intorstringint':
+                 if isinstance(value, str):
+                     if ":"  in value:
+                         prefix, number = value.split(":")
+                         if not number.isnumeric():
+                             result['failed'] = True
+                             result['msg'] = "must be a number: " + number + "(" + attr_name + ")"
+                             return result
+                     else:
+                         result['failed'] = True
+                         result['msg'] = "string must contain ':'" + attr_name
+                         return result
+
+                 elif not isinstance(value, int):
+                     result['failed'] = True
+                     result['msg'] = "attribute must be a int: " + attr_name
+                     return result
+
+
              if length <= 3:
                 continue
  
@@ -116,9 +135,9 @@ class ActionModule(ActionBase):
 #         [ True,  'kvm_id',   'str','numeric'],
          [ True,  'kvm_id',   'int'],
          [ True,  'disk0',    'int'],
-         [ False, 'disk1',    'int'],
-         [ False, 'disk2',    'int'],
-         [ False, 'disk3',    'int'],
+         [ False, 'disk1',    'intorstringint'],
+         [ False, 'disk2',    'intorstringint'],
+         [ False, 'disk3',    'intorstringint'],
          [ True,  'cores',    'int'],
          [ True,  'arch',     'str', 'set', ['x86_64','aarch64']],
          [ True,  'os_type',  'str', 'set', ['linux', 'windows']],
