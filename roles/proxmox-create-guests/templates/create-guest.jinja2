@@ -17,8 +17,14 @@
 {% endif -%}
 
 set -e
-{% if destroy and in_flash_list %}
+if [ ! -f "/etc/pve/qemu-server/{{ item.kvm_id }}.conf" ]; then
+  echo "kvm does not exist: {{ item.kvm_id }}"
+  exit 0
+fi
 qm stop    {{ item.kvm_id }}
+{% if not destroy %}
+if [ 0 == 1 ]; then
+{% endif %}
 qm destroy {{ item.kvm_id }}
 
 {% set onboot  = item.onboot |default(1) %}
@@ -64,6 +70,8 @@ qm destroy {{ item.kvm_id }}
   --net1    virtio,bridge={{ item.bridge1 }}\
 {% endif %}
 {% endif %}
+{% if not destroy %}
+fi
 {% endif %}
 
 DIRNAME=$(dirname "$0")
