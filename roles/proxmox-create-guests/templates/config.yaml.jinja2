@@ -1,4 +1,5 @@
 {% set item  = hostvars[sub_inventory_hostname]  %}
+{% set item_host = hostvars[item.kvm_host] %}
 {% set kvm_id = item.kvm_id|string %}
 
 {% if not kvm_id in proxmox_host_guests %}
@@ -73,21 +74,19 @@ systemd:
       [Install]
       WantedBy=multi-user.target
 
-{% if  format_policy == 'default'  -%}
-{% if  'disk1' in disk_uuid[kvm_id] %}
+{% if  format_policy == 'default' %}
   - name: var-srv-data.mount
     enabled: true
     contents: |
       [Unit]
       Before=local-fs.target
       [Mount]
-      What=UUID={{ disk_uiid[kvm_id].disk1 }}
+      What=UUID={{ item_host['disk_uuid'][item.kvm_id]['disk1'] }}
       Where=/var/srv/data
       Type=xfs
       [Install]
       WantedBy=local-fs.target
 {% endif %}
-{% endif -%}
 
 storage:
   files:
