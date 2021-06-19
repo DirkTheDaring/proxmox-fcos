@@ -15,6 +15,9 @@ set -e
 {% endif %}
 
 qm stop {{ item.kvm_id }}
+
+sleep 3 # for slow machines give some grace time
+
 # sometimes due to a kernel bug the device disappears
 lvm lvchange -aly "{{ proxmox_host_guests[kvm_id].scsi0_path }}"
 
