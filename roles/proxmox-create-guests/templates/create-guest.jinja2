@@ -1,4 +1,8 @@
 #!/usr/bin/env bash
+# Use Case: 1 Create and nothing exiss
+# Use Case: 2 Not create just keep books (UUIDs tracking)
+# Use Case: 3 Destroy,Create and  keep books
+ 
 {% set item  = hostvars[sub_inventory_hostname]  %}
 {% set kvm_host = item.kvm_host %}
 {% set item_host = hostvars[kvm_host] %}
@@ -69,29 +73,36 @@ fi
 DIRNAME=$(dirname "$0")
 rm -f "$DIRNAME/disk-uuid"
 {% set format_policy = item.format_policy if 'format_policy' in item else 'default' -%}
+#################################################
 {% if  format_policy == 'default'  -%}
 {% if disk_name_list|length > 1 -%}
 DISK_NAME={{ disk_name_list[1] }}
 DEV=$(grep -oP "${DISK_NAME}: \K[^,]*" /etc/pve/qemu-server/{{item.kvm_id}}.conf|xargs pvesm path)
+{% if destroy and in_flash_list %}
   if [ -n "$DEV" ]; then
     mkfs.xfs -L "DATA" "$DEV"
-    sleep 3
-    UUID=$(lsblk -no UUID "$DEV")
-    echo "disk1 $UUID" >"$DIRNAME/disk-uuid"
   fi
+  sleep 3
 {% endif -%}
+UUID=$(lsblk -no UUID "$DEV")
+echo "disk1 $UUID" >"$DIRNAME/disk-uuid"
+{% endif -%}
+
+#################################################
 {% elif  format_policy == 'ceph'  -%}
 {% set quirk_var=disk_name_list.pop(0) -%}
 DISK_NAMES="{{ disk_name_list|join(" ") }}"
 I=1
 for DISK_NAME in ${DISK_NAMES}; do
   STORAGE_PATH=$(grep -oP "${DISK_NAME}: \K[^,]*" /etc/pve/qemu-server/{{item.kvm_id}}.conf|xargs pvesm path)
+{% if destroy and in_flash_list %}
   echo "label: gpt" | sfdisk --no-reread "$STORAGE_PATH"
   echo ", +"|sfdisk --force --no-reread "$STORAGE_PATH"
-
-  PARTUUID=$(fdisk -o +UUID  -l /dev/pve/vm-180203-disk-1 |tail -1 |awk '{ print $NF}')
+{% endif %}
+  PARTUUID=$(fdisk -o +UUID  -l $STORAGE_PATH|tail -1 |awk '{ print $NF}')
   echo "disk${I} $PARTUUID" >>"$DIRNAME/disk-uuid"
   I=$(( I + 1 ))
-
 done
 {% endif -%}
+
+
