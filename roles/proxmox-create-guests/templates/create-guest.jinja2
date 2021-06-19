@@ -17,15 +17,10 @@
 {% endif -%}
 
 set -e
-if [ -f "/etc/pve/qemu-server/{{ item.kvm_id }}.conf" ]; then
 {% if destroy and in_flash_list %}
-  qm stop    {{ item.kvm_id }}
-  qm destroy {{ item.kvm_id }}
-{% else  %}
-  echo "{{ item.kvm_id }}: config exists"
-  exit 0
-{% endif %}
-fi
+qm stop    {{ item.kvm_id }}
+qm destroy {{ item.kvm_id }}
+
 {% set onboot  = item.onboot |default(1) %}
 {% set memory  = item.memory |default(2048) %}
 {% set balloon = item.balloon|default(memory/2)|int %}
@@ -67,8 +62,9 @@ fi
   --net1    virtio={{ item.net1_macaddr1|upper }},bridge={{ item.bridge1 }}\
 {% else  %}
   --net1    virtio,bridge={{ item.bridge1 }}\
-{% endif  %}
-{% endif  %}
+{% endif %}
+{% endif %}
+{% endif %}
 
 DIRNAME=$(dirname "$0")
 rm -f "$DIRNAME/disk-uuid"
