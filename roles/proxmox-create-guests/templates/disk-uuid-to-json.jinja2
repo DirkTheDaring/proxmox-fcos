@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+set -e
+DIRNAME=$(dirname "$0")
+
+FILENAME=$DIRNAME/disk-uuid
+
+[ -f "$FILENAME" ] || exit 0
+
+echo "{"
+cat "$FILENAME"|awk '{print "\""$1"\": \""$2"\","}'
+echo "\"---\": \"---\""
+echo "}"
