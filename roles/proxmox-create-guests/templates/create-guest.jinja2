@@ -48,10 +48,10 @@ fi
 {% endif -%}
 {% set quirk_var=disk_name_list.append(disk_type)  -%}
 {% set disk_value = item[disk_name]|string-%}
-{% set disk_value = disk_value if ':' in disk_value else storage_name + ":" + disk_value -%}
+{% set disk_value = disk_value if ':' in disk_value else storage_name + ":" + disk_value %}
   --{{ disk_type }} {{ disk_value }}\
 {% endif -%}
-{% endfor -%}
+{% endfor %}
   --scsihw  virtio-scsi-pci\
 {% if 'net0_macaddr' in item %}
   --net0    virtio={{ item.net0_macaddr|upper }},bridge=vmbr0\
