@@ -75,6 +75,7 @@ systemd:
       WantedBy=multi-user.target
 
 {% if  format_policy == 'default' %}
+{% if  'disk1' in item_host['disk_uuid'][item.kvm_id] %}
   - name: var-srv-data.mount
     enabled: true
     contents: |
@@ -86,6 +87,7 @@ systemd:
       Type=xfs
       [Install]
       WantedBy=local-fs.target
+{% endif %}
 {% endif %}
 
 storage:
