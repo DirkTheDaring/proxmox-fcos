@@ -69,10 +69,10 @@ qm destroy {{ item.kvm_id }}
 {% else  %}
   --net1    virtio,bridge={{ item.bridge1 }}\
 {% endif %}
-
 {% endif %}
 {% if not destroy %}
-fi
+
+; fi
 {% endif %}
 
 DIRNAME=$(dirname "$0")
