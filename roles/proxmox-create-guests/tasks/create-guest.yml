@@ -3,3 +3,25 @@
   when: "'os_name' in hostvars[item] and hostvars[item].os_name == 'fcos'"
   loop: "{{ flash_list }}"
   changed_when: false
+
+- name: execute uuid collector
+  command: "{{ proxmox_tmpdir }}/{{hostvars[item].kvm_id }}/disk-uuid-to-json"
+  when: "'os_name' in hostvars[item] and hostvars[item].os_name == 'fcos'"
+  loop: "{{ flash_list }}"
+  changed_when: false
+  register: disk_uuid_to_json
+
+#- ansible.builtin.debug:
+#    var: disk_uuid_to_json
+
+  # The disku_uuid object contains kvm_id(s) as keys and the value is again a key value of disk name as key (disk0 - disk4) with the uuid as value
+- set_fact:
+    disk_uuid: "{{ disk_uuid|default({}) |combine( {  hostvars[item].kvm_id: disk_uuid_to_json.results[i].stdout|from_json }) }}"
+  when: "'os_name' in hostvars[item] and hostvars[item].os_name == 'fcos'"
+  loop: "{{ flash_list }}"
+  loop_control:
+    index_var: i
+
+#- ansible.builtin.debug:
+#    var: disk_uuid
+##      #    verbosity: 2
