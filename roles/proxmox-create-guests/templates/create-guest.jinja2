@@ -86,11 +86,12 @@ DISK_NAMES="{{ disk_name_list|join(" ") }}"
 I=1
 for DISK_NAME in ${DISK_NAMES}; do
   STORAGE_PATH=$(grep -oP "${DISK_NAME}: \K[^,]*" /etc/pve/qemu-server/{{item.kvm_id}}.conf|xargs pvesm path)
-  echo "label: gpt" | sfdisk "$STORAGE_PATH"
+  echo "label: gpt" | sfdisk --no-reread "$STORAGE_PATH"
   echo ", +"|sfdisk --force --no-reread "$STORAGE_PATH"
-  # blockdev --rereadpt "$STORAGE_PATH"
-  PARTUUID=$(lsblk -no PARTUUID "$STORAGE_PATH"|tail -1 )
+
+  PARTUUID=$(fdisk -o +UUID  -l /dev/pve/vm-180203-disk-1 |tail -1 |awk '{ print $NF}')
   echo "disk${I} $PARTUUID" >>"$DIRNAME/disk-uuid"
-  I = $(( I + 1 ))
+  I=$(( I + 1 ))
+
 done
 {% endif -%}
