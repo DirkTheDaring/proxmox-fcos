@@ -4,7 +4,10 @@ DIRNAME=$(dirname "$0")
 
 FILENAME=$DIRNAME/disk-uuid
 
-[ -f "$FILENAME" ] || exit 0
+if [ ! -f "$FILENAME" ]; then
+    echo "{}"
+    exit 0
+fi
 
 echo "{"
 cat "$FILENAME"|awk '{print "\""$1"\": \""$2"\","}'
