@@ -13,6 +13,7 @@
 {% set netmask = item.fcos_netmask if 'fcos_netmask' in item else fcos_netmask %}
 {% set nameservers = item.fcos_nameservers if 'fcos_nameservers' in item else fcos_nameserver %}
 {% set override_sysconfig_docker = item.fcos_override_sysconfig_docker if 'fcos_override_sysconfig_docker' in item else fcos_override_sysconfig_docker  %}
+{% set format_policy = item.format_policy if 'format_policy' in item else 'default' -%}
 
 variant: fcos
 version: 1.0.0
@@ -72,19 +73,21 @@ systemd:
       [Install]
       WantedBy=multi-user.target
 
-{% if  'scsi1_path' in proxmox_host_guests[kvm_id] %}
+{% if  format_policy == 'default'  -%}
+{% if  'disk1' in disk_uuid[kvm_id] %}
   - name: var-srv-data.mount
     enabled: true
     contents: |
       [Unit]
       Before=local-fs.target
       [Mount]
-      What=/dev/sdb
+      What=UUID={{ disk_uiid[kvm_id].disk1 }}
       Where=/var/srv/data
       Type=xfs
       [Install]
       WantedBy=local-fs.target
 {% endif %}
+{% endif -%}
 
 storage:
   files:
