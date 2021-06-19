@@ -2,9 +2,19 @@
 {% set item  = hostvars[sub_inventory_hostname]  %}
 {% set kvm_host = item.kvm_host %}
 {% set item_host = hostvars[kvm_host] %}
+{% if flash_list|length > 0 -%}
+{% if sub_inventory_hostname in flash_list -%}
+{% set in_flash_list = true -%}
+{% else -%}
+{% set in_flash_list = false -%}
+{% endif -%}
+{% else -%}
+{% set in_flash_list = true -%}
+{% endif -%}
+
 set -e
 if [ -f "/etc/pve/qemu-server/{{ item.kvm_id }}.conf" ]; then
-{% if destroy %}
+{% if destroy and in_flash_list %}
   qm stop    {{ item.kvm_id }}
   qm destroy {{ item.kvm_id }}
 {% else  %}
@@ -17,12 +27,7 @@ fi
 {% set balloon = item.balloon|default(memory/2)|int %}
 {% set cores   = item.cores  |default(2) %}
 {% set storage_name = item_host.default_storage_name if 'default_storage_name' in item_host else 'local-lvm' %}
-{% set storage_size = 3 %}
-{% set disk0 = item.disk0|default(storage_size)|string %}
-{% set disk1 = item.disk1|default(storage_size)|string %}
-{% set disk2 = item.disk2|default(storage_size)|string %}
-{% set disk3 = item.disk3|default(storage_size)|string %}
-{% set scsi0 = disk0 if ':' in disk0 else storage_name + ':' + disk0 %}
+{% set default_disk_type = item.default_disk_type if 'default_disk_type' in item else 'scsi' -%}
 
   qm create {{ item.kvm_id }} \
   --name    "{{ item.hostname | default(item.inventory_hostname) }}"\
@@ -31,19 +36,22 @@ fi
   --memory  {{ memory }}\
   --balloon {{ balloon }}\
   --cores   {{ cores }}\
-  --scsi0   {{ scsi0 }}\
-{% if 'disk1' in item %}
-{% set disk1 = item.disk1|string %}
-  --scsi1   {{ disk1 if ':' in disk1 else storage_name + ':' + disk1 }}\
-{% endif  %}
-{% if 'disk2' in item %}
-{% set disk2 = item.disk2|string %}
-  --scsi2   {{ disk2 if ':' in disk2 else storage_name + ':' + disk2 }}\
-{% endif  %}
-{% if 'disk3' in item %}
-{% set disk3 = item.disk3|string %}
-  --scsi3   {{ disk3 if ':' in disk3 else storage_name + ':' + disk3 }}\
-{% endif  %}
+{% set disk_name_list = [] -%}
+{% for disk_no in [ '0', '1', '2', '3'] -%}
+{% set disk_name = ['disk', disk_no ]| join("") -%}
+{% set disk_type_name = ['disk', disk_no, '_type' ]| join("") -%}
+{% if  disk_name in item  -%}
+{% if  disk_type_name in item  -%}
+{% set disk_type = [item[disk_type_name], disk_no ]|join("") -%}
+{% else -%}
+{% set disk_type = [default_disk_type, disk_no ]|join("") -%}
+{% endif -%}
+{% set quirk_var=disk_name_list.append(disk_type)  -%}
+{% set disk_value = item[disk_name]|string-%}
+{% set disk_value = disk_value if ':' in disk_value else storage_name + ":" + disk_value -%}
+  --{{ disk_type }} {{ disk_value }}\
+{% endif -%}
+{% endfor -%}
   --scsihw  virtio-scsi-pci\
 {% if 'net0_macaddr' in item %}
   --net0    virtio={{ item.net0_macaddr|upper }},bridge=vmbr0\
@@ -58,11 +66,29 @@ fi
 {% endif  %}
 {% endif  %}
 
-{% if 'disk1' in item %}
-  # only after a qm create with a previously non existing conf we can 
-  # safely assume that we can format the second disk 
-  DEV=$(grep -oP 'scsi1: \K[^,]*' /etc/pve/qemu-server/{{item.kvm_id}}.conf|xargs pvesm path)
+DIRNAME=$(dirname "$0")
+rm -f "$DIRNAME/disk-uuid"
+{% set format_policy = item.format_policy if 'format_policy' in item else 'default' -%}
+{% if  format_policy == 'default'  -%}
+{% if disk_name_list|length > 1 -%}
+DISK_NAME={{ disk_name_list[1] }}
+DEV=$(grep -oP "${DISK_NAME}: \K[^,]*" /etc/pve/qemu-server/{{item.kvm_id}}.conf|xargs pvesm path)
   if [ -n "$DEV" ]; then
-    mkfs.xfs "$DEV" 
+    mkfs.xfs -L "DATA" "$DEV"
+    UUID=$(lsblk -no UUID "$DEV")
+    echo "disk1 $UUID" >"$DIRNAME/disk-uuid"
   fi
-{% endif %}
+{% endif -%}
+{% elif  format_policy == 'ceph'  -%}
+{% set quirk_var=disk_name_list.pop(0) -%}
+DISK_NAMES="{{ disk_name_list|join(" ") }}"
+I=1
+for DISK_NAME in ${DISK_NAMES}; do
+  STORAGE_PATH=$(grep -oP "${DISK_NAME}: \K[^,]*" /etc/pve/qemu-server/{{item.kvm_id}}.conf|xargs pvesm path)
+  echo "label: gpt" | sfdisk "$STORAGE_PATH"
+  echo ", +"|sfdisk --force --no-reread "$STORAGE_PATH"
+  PARTUUID=$(lsblk -no PARTUUID "$STORAGE_PATH"|tail -1 )
+  echo "disk${I} $PARTUUID" >>"$DIRNAME/disk-uuid"
+  I = $(( I + 1 ))
+done
+{% endif -%}
