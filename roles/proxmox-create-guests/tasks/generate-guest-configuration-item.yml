@@ -14,6 +14,12 @@
     dest: "{{ proxmox_tmpdir }}/{{hostvars[sub_inventory_hostname].kvm_id }}/create-guest"
     mode: '0755'
 
+- name: create uid to json
+  template:
+    src:  'disk-uuid-to-json.jinja2'
+    dest: "{{ proxmox_tmpdir }}/{{hostvars[sub_inventory_hostname].kvm_id }}/disk-uuid-to-json.jinja2"
+    mode: '0755'
+
 #- name: flash list
 #  debug:
 #    msg: "{{ flash_list }}"
