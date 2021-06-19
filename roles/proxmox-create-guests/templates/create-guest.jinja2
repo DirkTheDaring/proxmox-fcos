@@ -75,7 +75,7 @@ DISK_NAME={{ disk_name_list[1] }}
 DEV=$(grep -oP "${DISK_NAME}: \K[^,]*" /etc/pve/qemu-server/{{item.kvm_id}}.conf|xargs pvesm path)
   if [ -n "$DEV" ]; then
     mkfs.xfs -L "DATA" "$DEV"
-    sync "$DEV"
+    sleep 3
     UUID=$(lsblk -no UUID "$DEV")
     echo "disk1 $UUID" >"$DIRNAME/disk-uuid"
   fi
