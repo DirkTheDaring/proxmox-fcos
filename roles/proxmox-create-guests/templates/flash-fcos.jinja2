@@ -18,18 +18,31 @@ qm stop {{ item.kvm_id }}
 
 sleep 3 # for slow machines give some grace time
 
+{% if   'boot_order' in proxmox_host_guests[kvm_id] %}
+{% set bootdisk = proxmox_host_guests[kvm_id]['boot_order'][0] %}
+{% elif 'bootdisk' in proxmox_host_guests[kvm_id] %}
+{% set bootdisk = proxmox_host_guests[kvm_id]['bootdisk'] %}
+{% else  %}
+echo "Bootdisk not found"
+exit 1
+{% endif %}
+{% set disk0_path = [bootdisk, '_path']|join('') %}
+{% set storage_path=proxmox_host_guests[kvm_id][disk0_path] %}
+
+# bootdisk: {{ bootdisk }}
+
 # sometimes due to a kernel bug the device disappears
-lvm lvchange -aly "{{ proxmox_host_guests[kvm_id].scsi0_path }}"
+lvm lvchange -aly "{{ storage_path }}"
 
 # yes this did happen
-if [ ! -e "{{ proxmox_host_guests[kvm_id].scsi0_path }}" ]; then
-  echo "does not exist: {{ proxmox_host_guests[kvm_id].scsi0_path }}"
+if [ ! -e "{{ storage_path }}" ]; then
+  echo "does not exist: {{ storage_path }}"
   exit 1
 fi
 
-xz -dc "{{ fcos_root_dir }}/{{ channel }}/{{ fcos_filename }}"|dd of="{{ proxmox_host_guests[kvm_id].scsi0_path }}"
+xz -dc "{{ fcos_root_dir }}/{{ channel }}/{{ fcos_filename }}"|dd of="{{ storage_path }}"
 cd "{{ proxmox_tmpdir }}/{{ kvm_id }}"
-DEV=$(losetup --partscan --show --find "{{ proxmox_host_guests[kvm_id].scsi0_path }}")
+DEV=$(losetup --partscan --show --find "{{ storage_path }}")
 BOOT_DEV=$(LANG= fdisk -l $DEV |grep -m 1 'Linux filesystem$'|cut -d' ' -f1)
 
 if [ -e "${BOOT_DEV}" ]; then

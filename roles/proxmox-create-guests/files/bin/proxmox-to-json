@@ -31,7 +31,10 @@ class STORAGECONFIG:
 class QMCONFIG:
   def parse(self, fd, my_dict, lookup):
    re_mac = re.compile(r'^(net[0-9]+):.*([0-9A-F]{2,2}(:[0-9A-F]{2,2}){5,5})')
-   re_drives = re.compile(r'^(scsi[0-9]+|ide[0-9]+|sata[0-9]+):[ |\t]+(.*)')
+   re_drives = re.compile(r'^(virtio[0-9]+|scsi[0-9]+|ide[0-9]+|sata[0-9]+):[ |\t]+(.*)')
+   re_boot_order = re.compile(r'^boot:.*order=([^ \n]+)')
+   re_bootdisk = re.compile(r'^bootdisk:[ |\t]+([^ \n]+)')
+
    for line in fd:
      mo = re_mac.search(line)
      if mo:
@@ -64,7 +67,16 @@ class QMCONFIG:
        for key,value in sub_dict.items():
            my_dict[drive_name + "_" + key ] = value
 
+     mo = re_boot_order.search(line)
+     if mo:
+          drives = mo.groups()[0]
+          boot_order = drives.split(";")
+          my_dict['boot_order'] = boot_order
        
+     mo = re_bootdisk.search(line)
+     if mo:
+          my_dict['bootdisk'] = mo.groups()[0]
+
 
 sc = STORAGECONFIG()
 qm = QMCONFIG()
