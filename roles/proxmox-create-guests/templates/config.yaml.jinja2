@@ -89,6 +89,29 @@ systemd:
       WantedBy=local-fs.target
 {% endif %}
 {% endif %}
+  - name: cgroups-v1-karg.service
+    enabled: true
+    contents: |
+      [Unit]
+      # Starting from April 13 2021, Cgroups v2 is the default
+      # on Fedora CoreOS. June 26, 2021 kubernetes still requires v1
+      # https://docs.fedoraproject.org/uk/fedora-coreos/kernel-args/
+      Description=Switch to cgroups v1
+      # We run after `systemd-machine-id-commit.service` to ensure that
+      # `ConditionFirstBoot=true` services won't rerun on the next boot.
+      After=systemd-machine-id-commit.service
+      ConditionKernelCommandLine=!systemd.unified_cgroup_hierarchy
+      ConditionPathExists=!/var/lib/cgroups-v1-karg.stamp
+
+      [Service]
+      Type=oneshot
+      RemainAfterExit=yes
+      ExecStart=/bin/rpm-ostree kargs --append=systemd.unified_cgroup_hierarchy=0
+      ExecStart=/bin/touch /var/lib/cgroups-v1-karg.stamp
+      ExecStart=/bin/systemctl --no-block reboot
+
+      [Install]
+      WantedBy=multi-user.target
 
 storage:
   files:
@@ -226,3 +249,5 @@ storage:
         MACAddressPolicy=none
 
 {% endif %}
+
+
