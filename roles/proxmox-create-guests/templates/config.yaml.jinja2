@@ -58,7 +58,7 @@ systemd:
       Type=oneshot
       ExecCondition=/usr/bin/test ! -f /etc/package-installer.done
       # disable cgroup v2
-      ExecStart=-/bin/rpm-ostree kargs --append=systemd.unified_cgroup_hierarchy=0
+      ExecStart=/bin/rpm-ostree kargs --append=systemd.unified_cgroup_hierarchy=0
 {% if remove_packages|length > 0 %}
       ExecStart=-/usr/bin/rpm-ostree override remove {{ remove_packages| join(" ") }}
 {% endif %}
