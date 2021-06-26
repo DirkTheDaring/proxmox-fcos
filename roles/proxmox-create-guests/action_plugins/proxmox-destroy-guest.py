@@ -56,6 +56,8 @@ class ActionModule(ActionBase):
              if kvm_id not in proxmox_cluster:
                  continue
              entry =  proxmox_cluster[kvm_id]
+             if 'enabled' in item and str(item['enabled']).lower() == "false":
+                 continue
              if 'kvm_host' not in entry:
                  continue
              kvm_host = entry['kvm_host']
@@ -71,9 +73,7 @@ class ActionModule(ActionBase):
                      destroy_guest_list.append(proxmox_guests_item)
                      break
                      
-
          ansible_facts['destroy_guest_list'] = destroy_guest_list
-
 
          result['ansible_facts'] = ansible_facts
          result['changed'] = False

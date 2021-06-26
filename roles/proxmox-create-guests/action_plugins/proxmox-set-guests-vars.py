@@ -54,6 +54,8 @@ class ActionModule(ActionBase):
          proxmox_guests_list = []
          for proxmox_guests_item in proxmox_guests_array:
              item = hostvars[proxmox_guests_item]
+             if 'enabled' in item and str(item['enabled']).lower() == "false":
+                 continue
              if 'kvm_host' not in item:
                  continue
              kvm_host = item['kvm_host']
