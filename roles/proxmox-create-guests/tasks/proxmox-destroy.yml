@@ -1,0 +1,9 @@
+- action: proxmox-destroy-guest
+
+- name: "destroy_guest_list" 
+  debug:
+    msg: "{{ destroy_guest_list }}"
+
+#- fail:
+#   msg: "intentional"
+

@@ -1,7 +1,7 @@
 from ansible.plugins.action import ActionBase
 from ansible.utils.unsafe_proxy import AnsibleUnsafeText
 
-# ActionMoudle will be instiated per host. therefore the "global variable" will be created on a per host basis
+# ActionModule will be instiated per host. therefore the "global variable" will be created on a per host basis
 
 class ActionModule(ActionBase):
 

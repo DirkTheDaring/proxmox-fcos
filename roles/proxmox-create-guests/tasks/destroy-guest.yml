@@ -1,0 +1,8 @@
+- name: execute kvm destroy script
+  command: "{{ proxmox_tmpdir }}/{{hostvars[item].kvm_id }}/destroy-guest"
+  when: "'os_name' in hostvars[item] and hostvars[item].os_name == 'fcos'"
+  loop: "{{ destroy_guest_list }}"
+  changed_when: false
+
+#- fail:
+#   msg: "INTENTIONAL STOP"

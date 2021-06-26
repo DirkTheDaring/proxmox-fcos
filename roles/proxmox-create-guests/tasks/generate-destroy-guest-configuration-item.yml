@@ -1,0 +1,15 @@
+- name: again
+  debug:
+    msg: "{{ sub_inventory_hostname }}"
+
+- name: Create a directory if it does not exist
+  file:
+    path:  "{{ proxmox_tmpdir }}/{{ hostvars[sub_inventory_hostname].kvm_id }}"
+    state: directory
+    mode: '0755'
+
+- name: create kvm destroy script
+  template:
+    src:  'destroy-guest.jinja2'
+    dest: "{{ proxmox_tmpdir }}/{{hostvars[sub_inventory_hostname].kvm_id }}/destroy-guest"
+    mode: '0755'

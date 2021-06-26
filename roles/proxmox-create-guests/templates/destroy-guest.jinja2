@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+# The kvm to be destroyed can on ANOTHER proxmox host than the kvm to be
+# created. simply if somebody changed the "target host" of kvm
+
+{% set item  = hostvars[sub_inventory_hostname]  %}
+
+set -e
+if [ -f "/etc/pve/qemu-server/{{ item.kvm_id }}.conf" ]; then
+    qm stop    {{ item.kvm_id }}
+    sleep 3
+{% if destroy %}
+    qm destroy {{ item.kvm_id }}
+    sleep 3
+{% endif %}
+fi

@@ -1,5 +1,5 @@
-- include_tasks: generate-guest-configuration-item.yml
+- include_tasks: generate-destroy-guest-configuration-item.yml
   when: "'os_name' in hostvars[sub_inventory_hostname] and hostvars[sub_inventory_hostname].os_name == 'fcos'"
-  loop: "{{ flash_list }}"
+  loop: "{{ destroy_guest_list }}"
   loop_control:
     loop_var: "sub_inventory_hostname"

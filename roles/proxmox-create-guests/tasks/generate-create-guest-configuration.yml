@@ -1,0 +1,5 @@
+- include_tasks: generate-create-guest-configuration-item.yml
+  when: "'os_name' in hostvars[sub_inventory_hostname] and hostvars[sub_inventory_hostname].os_name == 'fcos'"
+  loop: "{{ flash_list }}"
+  loop_control:
+    loop_var: "sub_inventory_hostname"

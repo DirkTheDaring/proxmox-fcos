@@ -14,7 +14,6 @@
 - name: join information 
   action: proxmox-cluster
 
-#- name: delete temporary script directory
-#  file:
-#    dest:  "{{ proxmox_tmpdir }}"
-#    state: absent
+- debug:
+    var: proxmox_cluster
+    verbosity: 2
