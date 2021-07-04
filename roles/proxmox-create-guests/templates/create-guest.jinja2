@@ -44,7 +44,7 @@ if [ ! -f "/etc/pve/qemu-server/{{ item.kvm_id }}.conf" ]; then
   --balloon {{ balloon }}\
   --cores   {{ cores }}\
 {% set disk_name_list = [] -%}
-{% for disk_no in [ '0', '1', '2', '3'] -%}
+{% for disk_no in [ '0', '1', '2', '3', '4', '5', '6', '7'] -%}
 {% set disk_name = ['disk', disk_no ]| join("") -%}
 {% set disk_type_name = ['disk', disk_no, '_type' ]| join("") -%}
 {% if  disk_name in item  -%}

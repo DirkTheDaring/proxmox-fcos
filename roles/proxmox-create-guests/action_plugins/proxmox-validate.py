@@ -42,7 +42,7 @@ class ActionModule(ActionBase):
  
              elif attr_type == 'int' and not isinstance(value, int):
                  result['failed'] = True
-                 result['msg'] = "attribute must be a int: " + attr_name
+                 result['msg'] = "attribute must be an int: " + attr_name
                  return result
 
              elif attr_type == 'intorstringint':
