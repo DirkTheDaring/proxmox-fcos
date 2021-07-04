@@ -134,7 +134,7 @@ class ActionModule(ActionBase):
          [ True,  'kvm_host', 'str' ],
 #         [ True,  'kvm_id',   'str','numeric'],
          [ True,  'kvm_id',   'int'],
-         [ True,  'disk0',    'int'],
+         [ True,  'disk0',    'intorstringint'],
          [ False, 'disk1',    'intorstringint'],
          [ False, 'disk2',    'intorstringint'],
          [ False, 'disk3',    'intorstringint'],
