@@ -108,6 +108,7 @@ for DISK_NAME in ${DISK_NAMES}; do
   echo "disk${I} $PARTUUID" >>"$DIRNAME/disk-uuid"
   I=$(( I + 1 ))
 done
+{% elif  format_policy == 'none'  -%}
+# do not format disks
 {% endif -%}
-
 
