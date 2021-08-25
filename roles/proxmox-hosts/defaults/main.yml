@@ -30,8 +30,6 @@ ntpservers:
 - 2.de.pool.ntp.org
 - 3.de.pool.ntp.org
 
-os_id: bullseye
-
 vfio_disable_vga: False
 iommu_blacklist_enable: False
 
