@@ -1,0 +1,14 @@
+- hosts:
+  - localhost
+  gather_facts:     False
+  any_errors_fatal: True
+  roles:
+  - ansible-validation
+
+- name: proxmox flash fcos
+  hosts:
+  - proxmox_hosts
+  roles:
+  - proxmox-hosts
+
+
