@@ -1,7 +1,5 @@
-# FIXME
-# curl -1sLf 'https://dl.cloudsmith.io/public/pve-edge/kernel/gpg.8EC01CCF309B98E7.key' | apt-key add -
 # Source:
-# https://githubmemory.com/repo/fabianishere/pve-edge-kernel
+# https://github.com/fabianishere/pve-edge-kernel
 
 - name: Add gpg signature for pve kernels
   get_url:
