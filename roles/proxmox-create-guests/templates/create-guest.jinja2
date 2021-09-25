@@ -60,17 +60,23 @@ if [ ! -f "/etc/pve/qemu-server/{{ item.kvm_id }}.conf" ]; then
 {% endif -%}
 {% endfor %}
   --scsihw  virtio-scsi-pci\
-{% if 'net0_macaddr' in item %}
-  --net0    virtio={{ item.net0_macaddr|upper }},bridge=vmbr0\
-{% else  %}
-  --net0    virtio,bridge=vmbr0\
-{% endif  %}
+{% set net0 = 'virtio,bridge=vmbr0' -%}
+{% if 'net0_macaddr' in item -%}
+{% set net0 = ['virtio=', item.net0_macaddr|upper , ',bridge=vmbr0']|join("") -%}
+{% endif -%}
+{% if 'net0_rate' in item -%}
+{% set net0 = [  net0, ',rate=', item.net0_rate ]|join("") -%}
+{% endif %}
+  --net0 {{ net0 }} \
 {% if 'bridge1' in item %}
 {% if 'net1_macaddr' in item %}
   --net1    virtio={{ item.net1_macaddr1|upper }},bridge={{ item.bridge1 }}\
 {% else  %}
   --net1    virtio,bridge={{ item.bridge1 }}\
 {% endif %}
+{% endif %}
+{% if 'serial0' in item %}
+  --serial0 {{ item.serial0 }}\
 {% endif %}
 
 fi

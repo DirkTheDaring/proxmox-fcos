@@ -1,1 +1,6 @@
 - import_tasks: wait.yml
+- import_tasks: packages-raw.yml
+- import_tasks: reboot.yml
+- import_tasks: packages.yml
+- import_tasks: reboot.yml
+#- import_tasks: download.yml

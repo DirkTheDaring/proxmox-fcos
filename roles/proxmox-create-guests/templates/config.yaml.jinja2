@@ -47,40 +47,6 @@ systemd:
       [Install]
       WantedBy=multi-user.target
 
-  - name: package-installer.service
-    enabled: true
-    contents: |
-      [Unit]
-      Requires=network-online.target
-      After=network-online.target NetworkManager.service
-      # run this service before a user can login with sshd
-      Before=sshd.service
-      [Service]
-      Type=oneshot
-      ExecCondition=/usr/bin/test ! -f /etc/package-installer.done
-      # disable cgroup v2
-      #ExecStart=/bin/rpm-ostree kargs --append=systemd.unified_cgroup_hierarchy=0
-      # loop works around rpm-ostree kargs failing sometimes, just repeat until it works 
-{% if cgroupsv1 is boolean and cgroupsv1 %}
-      ExecStart=/usr/bin/bash -c "while(true); do /bin/rpm-ostree kargs --append=systemd.unified_cgroup_hierarchy=0 && break; sleep 1; done"
-{% endif %}
-{% if remove_packages|length > 0 %}
-      ExecStart=-/usr/bin/rpm-ostree override remove {{ remove_packages| join(" ") }}
-{% endif %}
-      # FIXME install at least python3 as package so that ansible can function normal
-      #       do this in a separate step, as any other packages might fail, but then we 
-      #       can use ansible on the host with python to fix the rest
-      #ExecStart=/usr/bin/sed -i '/\[updates\]/,/^\[/ s/^enabled=.*$/enabled=0/'     /etc/yum.repos.d/fedora-updates.repo
-      #ExecStart=/usr/bin/rpm-ostree install python3 libselinux-python3
-      #ExecStart=/usr/bin/sed -i '/\[updates\]/,/^\[/ s/^enabled=.*$/enabled=1/'     /etc/yum.repos.d/fedora-updates.repo
-      ExecStart=/usr/bin/sed -i '/^\[updates\]/a exclude=python3-selinux libselinux libselinux-utils' /etc/yum.repos.d/fedora-updates.repo
-      ExecStart=/usr/bin/rpm-ostree install --idempotent {{ item.fcos_install_packages|default(fcos_install_packages) | join(" ") }}
-      ExecStartPost=/usr/bin/touch /etc/package-installer.done
-      ExecStartPost=/usr/sbin/shutdown -r now
-
-      [Install]
-      WantedBy=multi-user.target
-
 {% if  format_policy == 'default' %}
 {% if  'disk1' in item_host['disk_uuid'][item.kvm_id] %}
   - name: var-srv-data.mount
@@ -96,31 +62,7 @@ systemd:
       WantedBy=local-fs.target
 {% endif %}
 {% endif %}
-{% if false %}
-  - name: cgroups-v1-karg.service
-    enabled: true
-    contents: |
-      [Unit]
-      # Starting from April 13 2021, Cgroups v2 is the default
-      # on Fedora CoreOS. June 26, 2021 kubernetes still requires v1
-      # https://docs.fedoraproject.org/uk/fedora-coreos/kernel-args/
-      Description=Switch to cgroups v1
-      # We run after `systemd-machine-id-commit.service` to ensure that
-      # `ConditionFirstBoot=true` services won't rerun on the next boot.
-      After=systemd-machine-id-commit.service
-      ConditionKernelCommandLine=!systemd.unified_cgroup_hierarchy
-      ConditionPathExists=!/var/lib/cgroups-v1-karg.stamp
 
-      [Service]
-      Type=oneshot
-      RemainAfterExit=yes
-      ExecStart=/bin/rpm-ostree kargs --append=systemd.unified_cgroup_hierarchy=0
-      ExecStart=/bin/touch /var/lib/cgroups-v1-karg.stamp
-      ExecStart=/bin/systemctl --no-block reboot
-
-      [Install]
-      WantedBy=multi-user.target
-{% endif %}
 
 storage:
   files:
@@ -198,7 +140,7 @@ storage:
         #     enforcing - SELinux security policy is enforced.
         #     permissive - SELinux prints warnings instead of enforcing.
         #     disabled - No SELinux policy is loaded.
-        SELINUX=disabled
+        SELINUX=permissive
         # SELINUXTYPE= can take one of these three values:
         #     targeted - Targeted processes are protected,
         #     minimum - Modification of targeted policy. Only selected processes are protected.

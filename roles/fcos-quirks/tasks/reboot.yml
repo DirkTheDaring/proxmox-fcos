@@ -1,0 +1,4 @@
+- name: reboot
+  reboot:
+  when: not need_package_crio.stat.exists or current_kernel != required_kernel
+

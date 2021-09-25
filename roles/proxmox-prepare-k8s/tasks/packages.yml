@@ -1,0 +1,10 @@
+- name: enable cgroups v1 
+  command: "rpm-ostree kargs --append=systemd.unified_cgroup_hierarchy=0"
+  when: cgroupsv1 is boolean and cgroupsv1
+
+- name: remove packages
+  command: "rpm-ostree override remove {{ remove_packages| join(' ') }}"
+  when: remove_packages is defined and (remove_packages|length > 0 )
+
+- name: install packages with rpm-ostree
+  command:  "rpm-ostree install {{ fcos_install_packages | join(' ') }}"

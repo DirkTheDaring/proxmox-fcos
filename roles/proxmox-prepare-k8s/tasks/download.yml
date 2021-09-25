@@ -1,0 +1,36 @@
+- name:  
+  set_fact: 
+    kernel_version: "5.14.7-200"
+    fedora_version: "34"
+    crio_version: "1.20.0-1.module_f34+10489+4277ba4d"
+
+- name: download  kernel
+  uri:
+    url:  "https://download-ib01.fedoraproject.org/pub/fedora/linux/updates/testing/34/Everything/x86_64/Packages/k/kernel-{{ kernel_version }}.fc{{ fedora_version }}.x86_64.rpm"
+    dest: "/home/core/kernel-{{ kernel_version}}.{{ fedora_version }}.x86_64.rpm"
+  ignore_errors: yes
+
+- name: download  kernel-core
+  uri:
+    url:  "https://download-ib01.fedoraproject.org/pub/fedora/linux/updates/testing/34/Everything/x86_64/Packages/k/kernel-core-{{ kernel_version }}.fc{{ fedora_version }}.x86_64.rpm"
+    dest: "/home/core/kernel-core-{{ kernel_version}}.{{ fedora_version }}.x86_64.rpm"
+  ignore_errors: yes
+   
+- name: download  kernel-modules
+  uri:
+    url:  "https://download-ib01.fedoraproject.org/pub/fedora/linux/updates/testing/34/Everything/x86_64/Packages/k/kernel-modules-{{ kernel_version }}.fc{{ fedora_version }}.x86_64.rpm"
+    dest: "/home/core/kernel-modules-{{ kernel_version}}.{{ fedora_version }}.x86_64.rpm"
+  ignore_errors: yes
+
+
+- name: download cri-o
+  uri:
+    url:  "https://mirror.chpc.utah.edu/pub/fedora/linux/updates/34/Modular/x86_64/Packages/c/cri-o-{{ crio_version }}.x86_64.rpm"
+    dest: "/home/core/cri-o-{{ crio_version }}.x86_64.rpm"
+  ignore_errors: yes
+
+- name: "replace kernel"
+  command: "rpm-ostree override replace kernel-{{ kernel_version}}.{{ fedora_version }}.x86_64.rpm kernel-core-{{ kernel_version}}.{{ fedora_version }}.x86_64.rpm kernel-modules-{{ kernel_version}}.{{ fedora_version }}.x86_64.rpm"
+
+- name: "install cri-o"
+  command: "rpm-ostree install /home/core/cri-o-{{ crio_version }}.x86_64.rpm"

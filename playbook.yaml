@@ -18,3 +18,13 @@
   any_errors_fatal: True
   roles:
   - proxmox-prepare-k8s
+  tags:
+  - packages
+
+- name: apply quirks
+  hosts:
+  - fedora_coreos_machines
+  roles:
+  - fcos-quirks
+  tags:
+  - quirks

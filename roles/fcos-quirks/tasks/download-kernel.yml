@@ -1,0 +1,41 @@
+- name: get kernel-release
+  ansible.builtin.command: uname --kernel-release
+  register: uname
+
+- set_fact:
+    current_kernel:  "{{ uname.stdout }}"
+    required_kernel: "{{ kernel_version }}.fc{{ fedora_version }}.x86_64"
+
+#- debug:
+#    msg: "{{ current_kernel }} == {{ required_kernel }}"
+
+- debug:
+    msg: "kernel unequal"
+  when: current_kernel != required_kernel
+
+- debug:
+    msg: "kernel equal"
+  when: current_kernel == required_kernel
+
+
+- name: download  kernel
+  uri:
+    url:  "https://download-ib01.fedoraproject.org/pub/fedora/linux/updates/testing/34/Everything/x86_64/Packages/k/kernel-{{ kernel_version }}.fc{{ fedora_version }}.x86_64.rpm"
+    dest: "/home/core/kernel-{{ kernel_version}}.fc{{ fedora_version }}.x86_64.rpm"
+    ignore_errors: yes
+  when: current_kernel != required_kernel
+
+- name: download  kernel-core
+  uri:
+    url:  "https://download-ib01.fedoraproject.org/pub/fedora/linux/updates/testing/34/Everything/x86_64/Packages/k/kernel-core-{{ kernel_version }}.fc{{ fedora_version }}.x86_64.rpm"
+    dest: "/home/core/kernel-core-{{ kernel_version}}.{{ fedora_version }}.x86_64.rpm"
+  ignore_errors: yes
+  when: current_kernel != required_kernel
+   
+- name: download  kernel-modules
+  uri:
+    url:  "https://download-ib01.fedoraproject.org/pub/fedora/linux/updates/testing/34/Everything/x86_64/Packages/k/kernel-modules-{{ kernel_version }}.fc{{ fedora_version }}.x86_64.rpm"
+    dest: "/home/core/kernel-modules-{{ kernel_version}}.fc{{ fedora_version }}.x86_64.rpm"
+  ignore_errors: yes
+  when: current_kernel != required_kernel
+

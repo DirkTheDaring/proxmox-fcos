@@ -7,18 +7,16 @@
 - wait_for:
     host:    "{{ ansible_host }}"
     port:    22
-    timeout: 30
-  retries: 20  # 30 * 20 = 600 secs = 10 Minutes
-  register: result
-  until:  result is succeeded
+    timeout: 900
+    sleep: 5
+    search_regex: "OpenSSH"
+
+  #retries: 30  # 30 * 30 = 900 secs = 15 Minutes
+  #register: result
+  #until:  result is succeeded
   delegate_to: localhost
 
-# FIXME might not work, if system cannot install python, the "command" will not work
-# https://stackoverflow.com/questions/44134642/how-to-retry-ansible-task-that-may-fail
-#- command: /usr/bin/false
-- command: systemctl start package-installer.service
-  retries: 3
-  delay: 3
-  register: result
-  until: result.rc == 0
+#- name: Wait 900 seconds for target connection to become reachable/usable
+#  wait_for_connection:
+#    timeout: 900
 

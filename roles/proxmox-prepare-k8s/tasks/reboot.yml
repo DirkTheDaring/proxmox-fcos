@@ -1,0 +1,24 @@
+#- name: raw reboot
+#  raw: shutdown -r -t 10
+  #ignore_errors: yes
+  #ignore_unreachable: yes
+
+
+#- set_fact:
+#    distribution: 'Fedora'
+
+- name: reboot
+  reboot:
+
+#- name: reboot
+#  raw: "sleep 5 && reboot"
+#  async: 1
+#  poll: 0
+#
+#- name:  wait
+#  wait_for_connection:
+#    connect_timeout: 20
+#    sleep: 5
+#    delay: 5
+#    timeout: 300
+#

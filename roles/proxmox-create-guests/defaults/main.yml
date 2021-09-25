@@ -4,7 +4,7 @@ proxmox_tmpdir: "/tmp/px"
 fcos_config_yaml_template_default: "config.yaml.jinja2"
 
 proxmox_downloaddir: "/ftp/pub/linux/fcos"
-fcos_root_dir: "/ftp/pub/linux/fcos"  # used in flsh template
+fcos_root_dir: "/ftp/pub/linux/fcos"  # used in flash template
 fcos_downloaddir: "/ftp/pub/linux/fcos"
 fcos_cachedir:    "/ftp/pub/linux/fcos/cache"
 fcos_upgrade_days: 7
