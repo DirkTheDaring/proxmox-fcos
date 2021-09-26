@@ -21,6 +21,13 @@
 #  with this it will only update when then required_kernel_number shows that the kernel is newer than the installed kernel  (no downgrades at this point!))
 - set_fact:
     need_kernel_update: "{{ required_kernel_number > current_kernel_number }}"
+  when: kernel_replace_policy_only_newer
+
+- set_fact:
+    need_kernel_update: "{{ required_kernel_number != current_kernel_number }}"
+  when: not kernel_replace_policy_only_newer
+
+- set_fact:
     kernel_packages:
     - "{{ kernel_url }}/k/kernel-{{ kernel_version }}.rpm"
     - "{{ kernel_url }}/k/kernel-core-{{ kernel_version }}.rpm"
