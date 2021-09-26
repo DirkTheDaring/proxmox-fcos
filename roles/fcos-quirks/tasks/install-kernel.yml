@@ -1,4 +1,3 @@
 - name: "replace kernel"
-  command: "rpm-ostree override replace kernel-{{ kernel_version}}.fc{{ fedora_version }}.x86_64.rpm kernel-core-{{ kernel_version}}.fc{{ fedora_version }}.x86_64.rpm kernel-modules-{{ kernel_version}}.fc{{ fedora_version }}.x86_64.rpm"
-  when: current_kernel != required_kernel
-
+  command: "rpm-ostree override replace kernel-{{ required_kernel_version}}.rpm kernel-core-{{ required_kernel_version}}.rpm kernel-modules-{{ required_kernel_version}}.rpm"
+  when: need_kernel_update and kernel_replace

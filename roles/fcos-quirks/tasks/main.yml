@@ -2,6 +2,7 @@
 - import_tasks: download-cri-o.yml
 - import_tasks: install-kernel.yml
 - import_tasks: install-cri-o.yml
+- import_tasks: cleanup-kernel.yml
 - import_tasks: reboot.yml
 
 

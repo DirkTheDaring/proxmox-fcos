@@ -1,0 +1,7 @@
+- ansible.builtin.file:
+    path: "{{ download_dir }}/{{ item | basename }}"
+    state: absent
+  loop: "{{ kernel_packages }}"
+  loop_control:
+    label: "{{ item|basename }}"
+
