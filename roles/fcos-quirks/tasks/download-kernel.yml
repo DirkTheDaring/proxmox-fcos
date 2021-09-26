@@ -29,9 +29,9 @@
 
 - set_fact:
     kernel_packages:
-    - "{{ kernel_url }}/k/kernel-{{ kernel_version }}.rpm"
-    - "{{ kernel_url }}/k/kernel-core-{{ kernel_version }}.rpm"
-    - "{{ kernel_url }}/k/kernel-modules-{{ kernel_version }}.rpm"
+    - "{{ kernel_url }}/kernel-{{ kernel_version }}.rpm"
+    - "{{ kernel_url }}/kernel-core-{{ kernel_version }}.rpm"
+    - "{{ kernel_url }}/kernel-modules-{{ kernel_version }}.rpm"
 
 
 #- debug:
