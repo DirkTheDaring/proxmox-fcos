@@ -1,8 +1,10 @@
-
 kernel_replace: false
 kernel_version: "5.14.7-200.fc34.x86_64"
 kernel_url:     "https://download-ib01.fedoraproject.org/pub/fedora/linux/updates/testing/34/Everything/x86_64/Packages"
 
+crio_replace: false
 crio_version: "1.20.0-1.module_f34+10489+4277ba4d"
 
 download_dir: "/home/core"
+
+

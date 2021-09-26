@@ -1,3 +1,19 @@
+- name: "get installed os-tree packages"
+  command: bash -c "rpm-ostree  status --json|jq -r '.deployments[0].packages|join(\" \")'"
+  register: os_tree
+
+- set_fact:
+    ostree_packages: "{{ os_tree.stdout.split(' ') }}"
+    package_crio: 'cri-o'
+
+- name: remove crio package if required
+  command: "rpm-ostree uninstall cri-o"
+  when: package_crio in ostree_packages and crio_replace
+
+- name: reboot when cri-o was uninstalled in previous step
+  reboot:
+  when: package_crio in ostree_packages and crio_replace
+
 - name: Check if already installed
   stat:
     path: "/bin/crio"
