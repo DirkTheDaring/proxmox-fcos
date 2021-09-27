@@ -11,9 +11,24 @@
   roles:
   - proxmox-create-guests
 
+
+
+
+- name: create group dynamic_fedora_coreos_machines from group fedora_coreos_machines
+  hosts:
+  - localhost
+  gather_facts:     False
+  any_errors_fatal: True
+  roles:
+  - fcos-group
+  tags:
+  - group 
+  - packages
+  - quirks
+
 - name: prepare k8s
   hosts:
-  - fedora_coreos_machines
+  - dynamic_fedora_coreos_machines
   gather_facts:     False
   any_errors_fatal: True
   roles:
@@ -23,7 +38,7 @@
 
 - name: apply quirks
   hosts:
-  - fedora_coreos_machines
+  - dynamic_fedora_coreos_machines
   roles:
   - fcos-quirks
   tags:
