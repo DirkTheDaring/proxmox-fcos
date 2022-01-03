@@ -11,7 +11,10 @@ kernel_version: "5.11.21-300.fc34.x86_64"
 kernel_url:     "https://kojipkgs.fedoraproject.org//packages/kernel/5.11.21/300.fc34/x86_64"
 
 crio_replace: false
-crio_version: "1.20.0-1.module_f34+10489+4277ba4d"
+#crio_version: "1.20.0-1.module_f34+10489+4277ba4d"
+#crio_version: "1.21.3-1.module_f34+12970+9bc30f6f"
+#crio_version: "1.21.3-1.module_f34+12970+9bc30f6f"
+crio_version: "1.21.4-1.module_f34+13414+2367a3a2"
 
 download_dir: "/home/core"
 
