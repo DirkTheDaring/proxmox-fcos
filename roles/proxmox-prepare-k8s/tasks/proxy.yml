@@ -1,0 +1,28 @@
+- name: create env file with variables
+  ansible.builtin.template:
+    src:  "proxy.env.jinja2"
+    dest: "/etc/sysconfig/proxy.env"
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: create directories for service overrides
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: '0755'
+  loop:
+  - /etc/systemd/system/rpm-ostreed.service.d
+  - /etc/systemd/system/zincati.service.d
+
+- name: create overrides for rpm-ostreed and zincati
+  ansible.builtin.template:
+    src:  "override.conf.jinja2"
+    dest: "{{ item }}/override.conf"
+    owner: root
+    group: root
+    mode: '0644'
+  loop:
+  - /etc/systemd/system/rpm-ostreed.service.d
+  - /etc/systemd/system/zincati.service.d
+

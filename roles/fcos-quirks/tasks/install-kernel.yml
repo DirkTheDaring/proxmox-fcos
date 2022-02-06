@@ -1,3 +1,0 @@
-- name: "replace kernel"
-  command: "rpm-ostree override replace kernel-{{ kernel_version }}.rpm kernel-core-{{ kernel_version }}.rpm kernel-modules-{{ kernel_version }}.rpm"
-  when: need_kernel_update and kernel_replace

@@ -1,9 +1,7 @@
 - name: raw sed 
   raw:  sed -i '/^\[updates\]/a exclude=python3-selinux libselinux libselinux-utils' /etc/yum.repos.d/fedora-updates.repo
 
-- name: install python3 
-  raw:  "bash -c 'for i in 1 2 3 4 5 6 7 8 9 10 ; do rpm-ostree install --apply-live python3 libselinux-python3 && break || sleep 15; done'"
+- name: install packages python3 python3-libselinux watchdog
+  raw:  "bash -c 'for i in 1 2 3 4 5 6 7 8 9 10 ; do rpm-ostree install --apply-live python3 python3-libselinux watchdog && break || sleep 15; done'"
   # peer is used to counter exception sometimes happening with the bus system
   #raw:  "bash -c 'for i in 1 2 3 4 5 6 7 8 9 10 ; do rpm-ostree install --apply-live --peer python3 libselinux-python3 && break || sleep 15; done'"
-
-

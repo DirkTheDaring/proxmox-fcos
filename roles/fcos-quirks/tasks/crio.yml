@@ -22,9 +22,17 @@
     get_mime: no
   register: need_package_crio
 
-- name: download cri-o
-  uri:
-    url:  "https://mirror.chpc.utah.edu/pub/fedora/linux/updates/34/Modular/x86_64/Packages/c/cri-o-{{ crio_version }}.x86_64.rpm"
-    dest: "/home/core/cri-o-{{ crio_version }}.x86_64.rpm"
-  ignore_errors: yes
-  when: not need_package_crio.stat.exists
+#- name: download cri-o
+#  uri:
+#    url:  "https://mirror.chpc.utah.edu/pub/fedora/linux/updates/34/Modular/x86_64/Packages/c/cri-o-{{ crio_version }}.x86_64.rpm"
+#    dest: "/home/core/cri-o-{{ crio_version }}.x86_64.rpm"
+#  ignore_errors: yes
+#  when: not need_package_crio.stat.exists
+#
+#- name: "install cri-o"
+#  command: "rpm-ostree install /home/core/cri-o-{{ crio_version }}.x86_64.rpm"
+#  when: not need_package_crio.stat.exists and crio_replace
+
+- name: "install cri-o"
+  command: "rpm-ostree ex module install cri-o:{{ crio_version }}"
+  when: not need_package_crio.stat.exists and crio_replace
