@@ -11,4 +11,7 @@
     - vim
     - net-tools
     - sysfsutils
+    # just auto-install packages
+    - unattended-upgrades
+    - apt-listchanges
 #  when: proxmox_host_network_quirk == True

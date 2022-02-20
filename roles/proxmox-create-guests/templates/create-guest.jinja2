@@ -75,6 +75,7 @@ if [ ! -f "/etc/pve/qemu-server/{{ item.kvm_id }}.conf" ]; then
   --net1    virtio,bridge={{ item.bridge1 }}\
 {% endif %}
 {% endif %}
+  --watchdog model=i6300esb,action=reset\
 {% if 'serial0' in item %}
   --serial0 {{ item.serial0 }}\
 {% endif %}
