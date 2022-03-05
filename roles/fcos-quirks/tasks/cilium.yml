@@ -1,7 +1,10 @@
 - name: create config files for cilium
-  ansible.builtin.file:
+  copy:
     src:  "{{ item | basename }}"
     dest: "{{ item }}"
+    owner: root
+    group: root
+    mode:  0644
   loop:
   - /etc/systemd/network/20-cilium.link
   - /etc/sysctl.d/reverse-path-filter.conf  
