@@ -144,7 +144,7 @@ storage:
 
         [ipv4]
         method=manual
-        addresses={{ item.net1_ip }}/{{ item.net1_mask }}
+        addresses={{ proxmox_host_guests[kvm_id].net1_ip }}/{{ proxmox_host_guests[kvm_id].net1_mask }}
 {% endif %}
   - path: /etc/selinux/config
     user:
