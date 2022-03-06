@@ -125,7 +125,27 @@ storage:
         addresses={{ item.ansible_host }}/{{ netmask }}
         gateway={{ gateway }}
         dns={{ nameservers | join(";") }}
+{% if 'bridge1' in item %}
+  - path: /etc/NetworkManager/system-connections/ens19.nmconnection
+    user:
+      name: root
+    group:
+      name: root
+    mode:   0600
+    overwrite: true
+    contents:
+      inline: |
+        [connection]
+        type=ethernet
+        interface-name=ens19
 
+        [ethernet]
+        mac-address={{ proxmox_host_guests[kvm_id].net1_macaddr }}
+
+        [ipv4]
+        method=manual
+        addresses={{ item.net1_ip }}/{{ item.net1_mask }}
+{% endif %}
   - path: /etc/selinux/config
     user:
       name: root
