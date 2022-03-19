@@ -1,5 +1,6 @@
 kernel_replace: false
 kernel_replace_policy_only_newer: false
+need_kernel_update: false
 
 #kernel_version: "5.14.7-200.fc34.x86_64"
 #kernel_url:     "https://download-ib01.fedoraproject.org/pub/fedora/linux/updates/testing/34/Everything/x86_64/Packages/k"
@@ -21,3 +22,5 @@ download_dir: "/home/core"
 
 disable_zincati: false
 
+fs_inotify_max_user_watches:   1048576
+fs_inotify_max_user_instances: 1000000
