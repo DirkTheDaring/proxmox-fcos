@@ -74,26 +74,6 @@ storage:
         net.ipv4.conf.*.rp_filter=0
 {% endif %}
 
-  - path: /etc/resolv.conf
-    user:
-      name: root
-    group:
-      name: root
-    mode:   0644
-    contents:
-      inline: |
-{% for fcos_nameserver in item.fcos_nameservers %}
-        nameserver {{ fcos_nameserver }}
-{% endfor %}
-{% if 'search' in item and item.search|length > 0 %}
-        search {{ search| join(" ") }}
-{% endif %}
-        options ndots:1
-
-{% if  netmask is not number %}
-{% set netmask = netmask | netmask_to_cidr %}
-{% endif %}
-
   - path: /etc/hostname
     user:
       name: root

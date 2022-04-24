@@ -3,8 +3,8 @@
   when: cgroupsv1 is boolean and cgroupsv1
 
 - name: remove packages
-  command: "rpm-ostree override remove {{ remove_packages| join(' ') }}"
-  when: remove_packages is defined and (remove_packages|length > 0 )
+  command: "rpm-ostree override remove {{ fcos_remove_packages| join(' ') }}"
+  when: fcos_remove_packages is defined and (fcos_remove_packages|length > 0 )
 
 - name: install packages with rpm-ostree
   command:  "rpm-ostree install {{ fcos_install_packages | join(' ') }}"
