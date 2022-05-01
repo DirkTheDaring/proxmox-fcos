@@ -1,0 +1,53 @@
+{% 
+   set index = groups[high_availability_group].index(inventory_hostname) 
+%}
+global_defs {
+  default_interface {{ high_availability_interface }}
+  enable_script_security
+}
+
+vrrp_script apiserver {
+  script "/usr/bin/curl --silent --insecure https://localhost:6443/healthz -o /dev/null"
+  interval 20
+  timeout  5
+  rise     1
+  fall     1
+  user     root
+}
+
+vrrp_script chk_haproxy {
+  script "killall -0 haproxy"
+  interval 2
+  weight 2
+}
+
+vrrp_instance VI_1 {
+
+{% if index == 0 %}
+    state             MASTER
+{% else %}
+    state             BACKUP
+{% endif %}
+    interface         {{ high_availability_interface }}
+    virtual_router_id {{ high_availability_virtual_router_id }}
+    priority          {{ 255 - index }}
+    advert_int        3
+
+    authentication {
+      auth_type PASS
+      auth_pass 1111
+    }
+
+    #track_script {
+    #  apiserver
+    #}
+
+    track_script {
+      chk_haproxy
+    }
+
+    virtual_ipaddress {
+      {{ high_availability_ip }}/{{ high_availability_netmask }} label {{ high_availability_interface }}:VIP
+    }
+
+}

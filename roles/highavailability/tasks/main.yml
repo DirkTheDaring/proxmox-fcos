@@ -1,0 +1,38 @@
+- name: Install packages with rpm-ostree
+  ansible.builtin.command: "rpm-ostree install --idempotent keepalived haproxy tcpdump"
+
+- name: Check if keepalived already available
+  stat:
+    path: "/usr/sbin/keepalived"
+    get_attributes: no
+    get_checksum: no
+    get_mime: no
+  register: keepalived
+
+- name: Reboot to make it available 
+  reboot:
+  when: not keepalived.stat.exists
+
+- name: Create haproxy.cfg
+  template:
+    src:  "haproxy.cfg.jinja2"
+    dest: "/etc/haproxy/haproxy.cfg"
+    mode: '0644'
+
+- name: Create keepalived.conf
+  template:
+    src:  "keepalived.conf.jinja2"
+    dest: "/etc/keepalived/keepalived.conf"
+    mode: '0644'
+
+- name: Enable haproxy
+  ansible.builtin.systemd:
+    name:    haproxy
+    state:   started
+    enabled: yes
+
+- name: Enable keepalived
+  ansible.builtin.systemd:
+    name:    keepalived
+    state:   started
+    enabled: yes

@@ -1,0 +1,8 @@
+high_availability_group: kube_master
+high_availability_port: 44444
+high_availability_interface: ens18
+
+high_availability_ip: 192.168.191.191
+high_availability_netmask: 17
+
+high_availability_virtual_router_id: 100
