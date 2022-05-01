@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 set -e
-exit 0
 {% set item   = hostvars[sub_inventory_hostname]  %}
 {% set kvm_id = item.kvm_id|string  %}
 {% if kvm_id not in proxmox_host_guests %}
