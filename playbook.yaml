@@ -1,3 +1,4 @@
+---
 - hosts:
   - localhost
   gather_facts:     False
@@ -6,40 +7,44 @@
   - ansible-validation
 
 - name: proxmox flash fcos
-  hosts:
-  - proxmox_hosts
   roles:
   - proxmox-create-guests
-
-
-
-
-- name: create group dynamic_fedora_coreos_machines from group fedora_coreos_machines
   hosts:
-  - localhost
-  gather_facts:     False
-  any_errors_fatal: True
+  - proxmox_hosts
+- name: install keepalived
   roles:
-  - fcos-group
-  tags:
-  - group 
-  - packages
-  - quirks
+  - highavailability
+  hosts:
+  - kube_master
+
+- name: zincati updates
+  roles:
+  - zincati
+  hosts:
+  - fedora_coreos_machines
 
 - name: prepare k8s
-  hosts:
-  - dynamic_fedora_coreos_machines
   gather_facts:     False
   any_errors_fatal: True
   roles:
   - proxmox-prepare-k8s
   tags:
   - packages
-
-- name: apply quirks
   hosts:
-  - dynamic_fedora_coreos_machines
+  - flash_group_fcos
+
+- name: apply quirks 
   roles:
   - fcos-quirks
   tags:
   - quirks
+  hosts:
+  - flash_group_fcos
+
+- name: apply quirks for kernel
+  hosts:
+  - dynamic_fedora_coreos_machines
+  roles:
+  - fcos-quirks-kernel
+  tags:
+  - kernel-quirks
