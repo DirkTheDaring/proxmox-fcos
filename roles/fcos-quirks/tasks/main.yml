@@ -1,5 +1,4 @@
 - import_tasks: sysctl.yml
-- import_tasks: crio.yml
-- import_tasks: zincati.yml
+#- import_tasks: crio.yml
 - import_tasks: cilium.yml
 - import_tasks: reboot.yml
