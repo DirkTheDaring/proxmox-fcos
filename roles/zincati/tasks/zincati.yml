@@ -1,0 +1,18 @@
+- name: Create zincati.toml
+  template:
+    src:  "zincati.toml.jinja2"
+    dest: "/etc/zincati/config.d/config.toml"
+    mode: '0644'
+  register: zincati_config
+
+- name: Restart service zincati when config has changed
+  ansible.builtin.service:
+    name:  zincati
+    state: restarted
+  when: zincati_config.changed
+
+- name: Set service to enabled (and started)
+  ansible.builtin.service:
+    name:    zincati
+    state:   started
+    enabled: yes

@@ -1,0 +1,7 @@
+- import_tasks: download-kernel.yml
+- import_tasks: install-kernel.yml
+- import_tasks: cleanup-kernel.yml
+- import_tasks: reboot.yml
+
+
+

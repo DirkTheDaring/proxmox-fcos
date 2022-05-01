@@ -1,0 +1,22 @@
+{% set index = groups[zincati_group].index(inventory_hostname) %}
+{% set even  = (( index % 2) == 0 ) %}
+
+# https://coreos.github.io/zincati/usage/updates-strategy/
+[updates]
+strategy = "periodic"
+
+[updates.periodic]
+time_zone = "Europe/Berlin"
+
+{% if even %}
+[[updates.periodic.window]]
+days = [ "Sat" ]
+start_time = "23:30"
+length_minutes = 180
+{% else %}
+[[updates.periodic.window]]
+days = [ "Sun" ]
+start_time = "23:30"
+length_minutes = 180
+{% endif %}
+
