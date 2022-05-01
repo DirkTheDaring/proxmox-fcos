@@ -55,6 +55,9 @@ class QMCONFIG:
 
        if url == 'none':
            continue
+       # test if raw disk --> skip
+       if url.startswith("/"):
+           continue
 
        volume, disk = url.split(":")
        my_dict[drive_name + "_storage"] = volume
@@ -72,7 +75,7 @@ class QMCONFIG:
           drives = mo.groups()[0]
           boot_order = drives.split(";")
           my_dict['boot_order'] = boot_order
-       
+
      mo = re_bootdisk.search(line)
      if mo:
           my_dict['bootdisk'] = mo.groups()[0]

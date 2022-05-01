@@ -35,6 +35,7 @@ if [ ! -f "/etc/pve/qemu-server/{{ item.kvm_id }}.conf" ]; then
 {% set cores   = item.cores  |default(2) %}
 {% set storage_name = item_host.default_storage_name if 'default_storage_name' in item_host else 'local-lvm' %}
 {% set default_disk_type = item.default_disk_type if 'default_disk_type' in item else 'scsi' -%}
+{% set agent   = item.agent |default(1) %}
 
   qm create {{ item.kvm_id }} \
   --name    "{{ item.hostname | default(item.inventory_hostname) }}"\
@@ -43,6 +44,8 @@ if [ ! -f "/etc/pve/qemu-server/{{ item.kvm_id }}.conf" ]; then
   --memory  {{ memory }}\
   --balloon {{ balloon }}\
   --cores   {{ cores }}\
+  --agent   enabled={{ agent }}\
+  --rng0    source=/dev/urandom\
 {% set disk_name_list = [] -%}
 {% for disk_no in [ '0', '1', '2', '3', '4', '5', '6', '7'] -%}
 {% set disk_name = ['disk', disk_no ]| join("") -%}

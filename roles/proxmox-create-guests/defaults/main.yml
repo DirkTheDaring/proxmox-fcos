@@ -34,3 +34,5 @@ fcos_netmask: 24
 fcos_gateway: ""
 fcos_nameservers: [ '', '' ]
 destroy: False
+
+proxmox_guests_group: []

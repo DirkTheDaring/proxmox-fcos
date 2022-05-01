@@ -1,0 +1,5 @@
+- name: Create flash install script for fedora
+  template:
+    src:  'flash-fedora.jinja2'
+    dest: "{{ proxmox_tmpdir }}/{{ hostvars[sub_inventory_hostname].kvm_id }}/flash-fedora"
+    mode: '0755'

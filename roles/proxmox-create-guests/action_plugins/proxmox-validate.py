@@ -2,10 +2,10 @@
 # Precondition: proxmox-cluster acttion was run: proxmox_cluster exists
 
 # Action Module
-# action_plugins are a special type of module, or a compliment to existing 
+# action_plugins are a special type of module, or a compliment to existing
 # modules. action_plugins get run on the ‘master’ instead of on the target,
 # for modules like file/copy/template, some of the work needs to be done on
-# the master before it executes things on the target. The action plugin 
+# the master before it executes things on the target. The action plugin
 # executes first and can then execute (or not) the normal module”.
 
 # Special variables:
@@ -17,7 +17,7 @@ from ansible.plugins.action import ActionBase
 #display = Display()
 
 
-# ActionModule has a new instance per host 
+# ActionModule has a new instance per host
 
 class ActionModule(ActionBase):
      def validate(self, table, hostvar, result, hostvars):
@@ -26,7 +26,7 @@ class ActionModule(ActionBase):
              mandatory = attr_row[0]
              attr_name = attr_row[1]
              attr_type = attr_row[2]
- 
+
              if not attr_name in hostvar:
                  if mandatory:
                      result['failed'] = True
@@ -39,7 +39,7 @@ class ActionModule(ActionBase):
                  result['failed'] = True
                  result['msg'] = "attribute must be a string: " + attr_name
                  return result
- 
+
              elif attr_type == 'int' and not isinstance(value, int):
                  result['failed'] = True
                  result['msg'] = "attribute must be an int: " + attr_name
@@ -66,9 +66,9 @@ class ActionModule(ActionBase):
 
              if length <= 3:
                 continue
- 
+
              attr_subtype = attr_row[3]
- 
+
              if attr_subtype == 'numeric':
                  if not value.isnumeric():
                      result['failed'] = True
@@ -92,8 +92,8 @@ class ActionModule(ActionBase):
 
          result['failed'] = False
          return result
- 
- 
+
+
      def run(self, tmp=None, task_vars=None):
          if task_vars is None:
             task_vars = dict()
@@ -104,7 +104,7 @@ class ActionModule(ActionBase):
          inventory_hostname = task_vars['inventory_hostname']
          hostvars = task_vars['hostvars']
          groups = task_vars['groups']
-         ansible_play_hosts_all = task_vars['ansible_play_hosts_all'] 
+         ansible_play_hosts_all = task_vars['ansible_play_hosts_all']
 
          hostvar = hostvars[inventory_hostname]
 
@@ -117,12 +117,14 @@ class ActionModule(ActionBase):
 
          proxmox_cluster = hostvar['proxmox_cluster']
          proxmox_guests_group = hostvar['proxmox_guests_group']
+
          if proxmox_guests_group not in groups:
              result['failed'] = True
              result['msg'] = "group defined in proxmox_guests_group does not exist: " + proxmox_guests_group
              return result
-
+         print(proxmox_guests_group)
          proxmox_guests_group_list = groups[proxmox_guests_group]
+         print(proxmox_guests_group_list)
 
         # col0 = attribute mandatory or not
         # col1 = attribute name
@@ -162,12 +164,12 @@ class ActionModule(ActionBase):
                  result['msg'] = msg
                  return result
 
-         # check if virtual machines in configuration are assigned to the same host like the real configuration (proxmox_cluster) 
+         # check if virtual machines in configuration are assigned to the same host like the real configuration (proxmox_cluster)
          for name in proxmox_guests_group_list:
              guest_hostvar = hostvars[name]
              kvm_host = guest_hostvar['kvm_host']
 
-             # all hosts must be in the current playbroup otherwise all the checks make limited sense
+             # all hosts must be in the current playgroup otherwise all the checks make limited sense
 
              if kvm_host not in ansible_play_hosts_all:
                  result['failed'] = True

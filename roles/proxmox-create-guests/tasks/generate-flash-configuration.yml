@@ -1,6 +1,13 @@
-- name: Generate flash-configurationrate flash-configuration
+- name: Generate flash-configurationrate flash-configuration for fcos
   include_tasks: generate-flash-configuration-item.yml
   when: "'os_name' in hostvars[sub_inventory_hostname] and hostvars[sub_inventory_hostname].os_name == 'fcos'"
+  loop: "{{ flash_list }}"
+  loop_control:
+    loop_var: "sub_inventory_hostname"
+
+- name: Generate flash-configurationrate flash-configuration for fedora
+  include_tasks: generate-flash-configuration-item.yml
+  when: "'os_name' in hostvars[sub_inventory_hostname] and hostvars[sub_inventory_hostname].os_name == 'fedora'"
   loop: "{{ flash_list }}"
   loop_control:
     loop_var: "sub_inventory_hostname"

@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+set -e
+{% set item   = hostvars[sub_inventory_hostname] %}
+{% set kvm_id = item.kvm_id|string %}
+{% if kvm_id not in proxmox_host_guests %}
+# ERROR {{ item.inventory_hostname }}
+# ERROR {{ kvm_id }}
+{% endif %}
+
+qm stop {{ item.kvm_id }}
+
+sleep 3 # for slow machines give some grace time
