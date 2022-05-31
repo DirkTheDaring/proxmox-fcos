@@ -23,6 +23,8 @@
   - flash_group_fcos
 
 - name: zincati updates
+  tags:
+  - zincati
   roles:
   - zincati
   hosts:
