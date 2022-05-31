@@ -16,7 +16,7 @@ crio_replace: false
 #crio_version: "1.21.3-1.module_f34+12970+9bc30f6f"
 #crio_version: "1.21.3-1.module_f34+12970+9bc30f6f"
 #crio_version: "1.21.4-1.module_f34+13414+2367a3a2"
-crio_version: "1.22"
+crio_version: "1.24/default"
 
 download_dir: "/home/core"
 
