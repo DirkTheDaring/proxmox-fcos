@@ -11,17 +11,6 @@
   - proxmox-create-guests
   hosts:
   - proxmox_hosts
-- name: install keepalived
-  roles:
-  - highavailability
-  hosts:
-  - kube_master
-
-- name: zincati updates
-  roles:
-  - zincati
-  hosts:
-  - fedora_coreos_machines
 
 - name: prepare k8s
   gather_facts:     False
@@ -33,6 +22,12 @@
   hosts:
   - flash_group_fcos
 
+- name: zincati updates
+  roles:
+  - zincati
+  hosts:
+  - fedora_coreos_machines
+
 - name: apply quirks 
   roles:
   - fcos-quirks
@@ -40,6 +35,12 @@
   - quirks
   hosts:
   - flash_group_fcos
+
+- name: install keepalived
+  roles:
+  - highavailability
+  hosts:
+  - kube_master
 
 - name: apply quirks for kernel
   hosts:
