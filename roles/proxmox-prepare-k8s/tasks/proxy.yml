@@ -15,7 +15,7 @@
   - /etc/systemd/system/rpm-ostreed.service.d
   - /etc/systemd/system/zincati.service.d
 
-- name: create overrides for rpm-ostreed and zincati
+- name: add proxy configuration into services rpm-ostreed and zincati
   ansible.builtin.template:
     src:  "override.conf.jinja2"
     dest: "{{ item }}/override.conf"
@@ -25,4 +25,3 @@
   loop:
   - /etc/systemd/system/rpm-ostreed.service.d
   - /etc/systemd/system/zincati.service.d
-
