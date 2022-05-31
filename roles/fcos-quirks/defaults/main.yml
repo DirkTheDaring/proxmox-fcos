@@ -20,7 +20,5 @@ crio_version: "1.24/default"
 
 download_dir: "/home/core"
 
-disable_zincati: false
-
 fs_inotify_max_user_watches:   1048576
 fs_inotify_max_user_instances: 1000000

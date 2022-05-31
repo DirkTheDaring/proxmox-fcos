@@ -33,6 +33,21 @@
 #  command: "rpm-ostree install /home/core/cri-o-{{ crio_version }}.x86_64.rpm"
 #  when: not need_package_crio.stat.exists and crio_replace
 
+- name: create config for crio (missing in 1.24)
+  copy:
+    src:  "{{ item | basename }}"
+    dest: "{{ item }}"
+    owner: root
+    group: root
+    mode:  0644
+  loop:
+  - /etc/containers/storage.conf
 - name: "install cri-o"
   command: "rpm-ostree ex module install cri-o:{{ crio_version }}"
   when: not need_package_crio.stat.exists and crio_replace
+
+- name: "install cri-o"
+  command: "rpm-ostree ex module enable cri-o:{{ crio_version }}"
+  when: not need_package_crio.stat.exists and crio_replace
+
+

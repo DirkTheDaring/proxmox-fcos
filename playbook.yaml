@@ -28,7 +28,7 @@
   roles:
   - zincati
   hosts:
-  - fedora_coreos_machines
+  - "{{ 'flash_group_fcos' if 'flash_group_fcos' in groups else 'fedora_coreos_machines' }}"
 
 - name: apply quirks 
   roles:
@@ -36,7 +36,7 @@
   tags:
   - quirks
   hosts:
-  - flash_group_fcos
+  - "{{ 'flash_group_fcos' if 'flash_group_fcos' in groups else 'fedora_coreos_machines' }}"
 
 - name: install keepalived
   roles:
