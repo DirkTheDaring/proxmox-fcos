@@ -84,6 +84,18 @@ storage:
       inline: |
         {{ item.hostname | default(sub_inventory_hostname) }}
 
+  - path: /etc/zincati/config.d/config.toml
+      # 420 (decimal) == 644 (octal)
+      mode: 420
+      group:
+        name: root
+      user:
+        name: root
+      contents:
+        inline: |
+          [updates]
+          enabled = false
+
   - path: /etc/NetworkManager/system-connections/{{ item.fcos_default_network_device if 'fcos_default_network_device' in item else fcos_default_network_device }}.nmconnection
     user:
       name: root
