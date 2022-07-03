@@ -43,6 +43,8 @@
   - highavailability
   hosts:
   - kube_master
+  tags:
+  - highavailability
 
 - name: apply quirks for kernel
   hosts:
