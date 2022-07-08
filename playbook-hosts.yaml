@@ -10,3 +10,13 @@
   - proxmox-hosts
   hosts:
   - proxmox_hosts
+  tags:
+  - proxmox-hosts
+
+- name: install fcos sync
+  roles:
+  - fcos-sync
+  hosts:
+  - proxmox_hosts
+  tags:
+  - fcos-sync
