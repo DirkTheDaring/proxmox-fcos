@@ -10,7 +10,7 @@
   - "/etc/systemd/system/fcos-sync-external.timer"
   register: fcos_external
   when: 
-  -  inventory_hostname == ansible_play_hosts_all[0]
+  -  inventory_hostname == download_host
 
 - name: Remove files for services if they exist on the other hosts
   ansible.builtin.file:
@@ -20,7 +20,7 @@
   - "/etc/systemd/system/fcos-sync-external.service"
   - "/etc/systemd/system/fcos-sync-external.timer"
   when:
-  -  inventory_hostname != ansible_play_hosts_all[0]
+  -  inventory_hostname != download_host
 
 - name: "restart fcos-sync-external service"
   service:
@@ -28,7 +28,7 @@
     daemon_reload: true
     state: restarted
   when: 
-  -  inventory_hostname == ansible_play_hosts_all[0]
+  -  inventory_hostname == download_host
   -  fcos_external.changed
 
 - name:    "create config file for local sync"
@@ -63,5 +63,5 @@
     state:   started
     enabled: yes
   when:
-  -  inventory_hostname == ansible_play_hosts_all[0]
+  -  inventory_hostname == download_host
 

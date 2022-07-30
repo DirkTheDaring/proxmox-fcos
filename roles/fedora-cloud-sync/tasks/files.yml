@@ -6,7 +6,7 @@
     owner: root
     group: root
   loop:
-  - /etc/fcos-sync
+  - /etc/fedora-cloud-sync
 
 - name: "create config file if does not exist"
   template:
@@ -17,42 +17,40 @@
     mode:  0644
     #force: no      # if the file exists we do nothing
   loop:
-  - "/etc/fcos-sync/fcos-sync.conf"
+  - "/etc/fedora-cloud-sync/fedora-cloud-sync.conf"
 
-- name: "install fcos scripts for external sync"
-  copy:
-    src:  "{{ item }}"
-    dest: "/usr/local/bin/{{ item|basename }}"
-    owner: root
-    group: root
-    mode:  0755
-  loop:
-  - "fcos-download-simple.sh"
-  - "fcos-latest-version.sh" 
-  - "fcos-sync-external.sh"
-  when: 
-  -  inventory_hostname == download_host
+- set_fact:
+    file_list:
+    - "fedora-cloud-sync-external.sh"
 
-- name: Remove files if they exist on the other hosts
+- name: Remove files if they happend to exist on other hosts
   ansible.builtin.file:
     path: "/usr/local/bin/{{ item|basename }}"
     state: absent
-  loop:
-  - "fcos-download-simple.sh"
-  - "fcos-latest-version.sh"
-  - "fcos-sync-external.sh"
+  loop: "{{ file_list }}"
   when:
   -  inventory_hostname != download_host
 
 
-- name: "install fcos scripts for local sync"
+- name: "install scripts for external sync"
   copy:
     src:  "{{ item }}"
     dest: "/usr/local/bin/{{ item|basename }}"
     owner: root
     group: root
     mode:  0755
-  loop:
-  - "fcos-unpack.sh"
-  - "fcos-sync-local.sh"
+  loop: "{{ file_list }}"
+  when: 
+  -  inventory_hostname == download_host
 
+
+#- name: "install scripts for local sync"
+#  copy:
+#    src:  "{{ item }}"
+#    dest: "/usr/local/bin/{{ item|basename }}"
+#    owner: root
+#    group: root
+#    mode:  0755
+#  loop:
+#  - "fcos-unpack.sh"
+#  - "fcos-sync-local.sh"

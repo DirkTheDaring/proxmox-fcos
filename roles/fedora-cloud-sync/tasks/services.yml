@@ -1,0 +1,80 @@
+- set_fact:
+     file_list:
+     - "/etc/systemd/system/fedora-cloud-sync-external.service"
+     - "/etc/systemd/system/fedora-cloud-sync-external.timer"
+
+- name:    "create service/timer files for external sync"
+  template:
+    src:   "{{ item | basename }}.jinja2"
+    dest:  "{{ item }}"
+    owner: root
+    group: root
+    mode:  0644
+  loop: "{{ file_list }}"
+  register: fcos_external
+  when: 
+  - inventory_hostname == download_host
+
+- name: Disable timer on non-primary hosts
+  ansible.builtin.systemd:
+    name:    fedora-cloud-sync-external.timer
+    state:   stopped
+    enabled: no
+  when:
+  - inventory_hostname != download_host
+  - fcos_external.changed
+
+- name: Remove files for services if they exist on the other hosts
+  ansible.builtin.file:
+    path: "/usr/local/bin/{{ item|basename }}"
+    state: absent
+  loop: "{{ file_list }}"
+  when:
+  - inventory_hostname != download_host
+
+#- name: "restart fedora-cloud-sync-external service"
+#  service:
+#    name:  fcos-sync-external.service
+#    daemon_reload: true
+#    state: restarted
+#  when: 
+#  - inventory_hostname == download_host
+#  - fcos_external.changed
+
+
+
+- name: Enable and Start fcos-sync-external.timer
+  ansible.builtin.systemd:
+    name:    fedora-cloud-sync-external.timer
+    state:   started
+    enabled: yes
+  when:
+  - inventory_hostname == download_host
+  #- fcos_external.changed
+
+
+#- name:    "create config file for local sync"
+#  template:
+#    src:   "{{ item | basename }}.jinja2"
+#    dest:  "{{ item }}"
+#    owner: root
+#    group: root
+#    mode:  0644
+#  loop:
+#  - "/etc/systemd/system/fcos-sync-local.service"
+#  - "/etc/systemd/system/fcos-sync-local.timer"
+#  register: fcos_local
+#
+##- name: "restart fcos-sync-local service"
+##  service:
+##    name:  fcos-sync-local.service
+##    state: restarted
+##    daemon_reload: true
+##  when:    fcos_local.changed
+#
+#- name: Enable and Start fcos-sync-local.timer
+#  ansible.builtin.systemd:
+#    name:    fcos-sync-local.timer
+#    state:   started
+#    daemon_reload: yes
+#    enabled: yes
