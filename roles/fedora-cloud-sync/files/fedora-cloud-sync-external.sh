@@ -55,5 +55,4 @@ done
 exit $ERROR
 
 # FIXME Cleanup max 3 old cheksum + qcow files
-
 # FIXME create a SBOM entry
