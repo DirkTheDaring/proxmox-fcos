@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -e
-TARGET_DIR="/var/lib/vz/template/cache"
+#TARGET_DIR="/var/lib/vz/template/cache"
+#TARGET_DIR="/home/dietmar/tmp"
+TARGET_DIR="/mnt/pve/shared/template/cache"
+
 MAX=3
 URL0=https://kojipkgs.fedoraproject.org/packages/Fedora-Container-Base/
 
@@ -15,7 +18,7 @@ mkdir -p "${TARGET_DIR}"
 
 FILENAME="${TARGET_DIR}/${BASENAME}"
 if [ ! -f "${FILENAME}" ]; then
-  echo "* Download ${FILENAME}"
+  echo "* Download ${BASENAME} to ${TARGET_DIR}"
   curl -s -o "${FILENAME}" "$URL"
 fi
 

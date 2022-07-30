@@ -1,0 +1,20 @@
+- name: "create directories"
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode:  0755
+    owner: root
+    group: root
+  loop:
+  - "/etc/fedora-container-sync"
+
+- name: "create config file if does not exist"
+  template:
+    src:   "{{ item | basename }}.jinja2"
+    dest:  "{{ item }}"
+    owner: root
+    group: root
+    mode:  0644
+    #force: no      # if the file exists we do nothing
+  loop:
+  - "/etc/fedora-container-sync/fedora-container-sync.conf"

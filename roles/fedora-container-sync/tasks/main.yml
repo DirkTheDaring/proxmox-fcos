@@ -1,5 +1,2 @@
-- debug:
-    msg: "{{ download_host }}"
-- import_tasks: "files.yml"
-  #- import_tasks: "packages.yml"
+- import_tasks: "config.yml"
 - import_tasks: "services.yml"
