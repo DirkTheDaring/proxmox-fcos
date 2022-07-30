@@ -1,0 +1,55 @@
+- name: "create directories"
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode:  0755
+    owner: root
+    group: root
+  loop:
+  - /etc/fedora-container-sync
+
+- name: "create config file if does not exist"
+  template:
+    src:   "{{ item | basename }}.jinja2"
+    dest:  "{{ item }}"
+    owner: root
+    group: root
+    mode:  0644
+    #force: no      # if the file exists we do nothing
+  loop:
+  - "/etc/fedora-container-sync/fedora-container-sync.conf"
+
+- set_fact:
+    file_list:
+    - "fedora-container-sync-external.sh"
+
+- name: Remove files if they happend to exist on other hosts
+  ansible.builtin.file:
+    path: "/usr/local/bin/{{ item|basename }}"
+    state: absent
+  loop: "{{ file_list }}"
+  when:
+  -  inventory_hostname != download_host
+
+
+- name: "install scripts for external sync"
+  copy:
+    src:  "{{ item }}"
+    dest: "/usr/local/bin/{{ item|basename }}"
+    owner: root
+    group: root
+    mode:  0755
+  loop: "{{ file_list }}"
+  when: 
+  -  inventory_hostname == download_host
+
+#- name: "install scripts for local sync"
+#  copy:
+#    src:  "{{ item }}"
+#    dest: "/usr/local/bin/{{ item|basename }}"
+#    owner: root
+#    group: root
+#    mode:  0755
+#  loop:
+#  - "fcos-unpack.sh"
+#  - "fcos-sync-local.sh"

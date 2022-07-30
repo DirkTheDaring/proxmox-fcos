@@ -20,3 +20,19 @@
   - proxmox_hosts
   tags:
   - fcos-sync
+
+- name: install fedora-cloud sync
+  roles:
+  - fedora-cloud-sync
+  hosts:
+  - proxmox_hosts
+  tags:
+  - fedora-cloud-sync
+
+- name: install fedora-container sync
+  roles:
+  - fedora-container-sync
+  hosts:
+  - proxmox_hosts
+  tags:
+  - fedora-container-sync
