@@ -33,6 +33,17 @@
   when: 
   -  inventory_hostname == ansible_play_hosts_all[0]
 
+- name: Remove files if they exist on the other hosts
+  ansible.builtin.file:
+    path: "/usr/local/bin/{{ item|basename }}"
+    state: absent
+  loop:
+  - "fcos-download-simple.sh"
+  - "fcos-latest-version.sh"
+  - "fcos-sync-external.sh"
+  when:
+  -  inventory_hostname != ansible_play_hosts_all[0]
+
 
 - name: "install fcos scripts for local sync"
   copy:

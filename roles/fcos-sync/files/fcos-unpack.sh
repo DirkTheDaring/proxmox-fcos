@@ -2,55 +2,49 @@
 set -e
 SOURCE_DIR=$1
 TARGET_DIR=$2
+PATTERN="fedora-coreos-*-qemu.x86_64.qcow2"
+MAX=3
 
 function echo_stderr {
-  echo "$@" 1>&2; 
+  echo "$@" 1>&2;
 }
 
-if [ -z "$1" ]; then
-  echo_stderr "please provide source dir."
-  exit 1
-fi
+for VAR_NAME in SOURCE_DIR TARGET_DIR; do
 
-if [ -z "$2" ]; then
-  echo_stderr "please provide target dir."
-  exit 1
-fi
+    eval DIR=\$$VAR_NAME
 
-SOURCE_DIR=$1
-TARGET_DIR=$2
+    if [ -z "${DIR}" ]; then
+        echo_stderr "please provide ${VAR_NAME}"
+        exit 1
+    fi
 
-if [ ! -d "$SOURCE_DIR" ]; then
-  echo_stderr "source dir does not exist: $SOURCE_DIR"
-  exit 1
-fi
+    if [ ! -d "${DIR}" ]; then
+        echo_stderr "directory provided by '${VAR_NAME}' does not exist: ${DIR}"
+        exit 1
+    fi
 
-if [ ! -d "$TARGET_DIR" ]; then
-  #echo_stderr "target dir does not exist: $TARGET_DIR"
-  #exit 1
-  mkdir -p "$TARGET_DIR"
-fi
+done
 
+echo_stderr "* Unpack from '${SOURCE_DIR}' to '${TARGET_DIR}'"
 
-echo_stderr "* Unpack from '$SOURCE_DIR' to '$TARGET_DIR'"
 # Remove any leftover tmp files
-#find "${TARGET_DIR}" -type f -name '*.tmp' -exec rm -f {} \;
+find "${TARGET_DIR}" -type f -name '*.tmp' -exec rm -f {} \;
 
-for IMAGE in "$SOURCE_DIR/"*-qemu.x86_64.qcow2.xz; do
-  UNPACKED_IMAGE=$(basename -s .xz $IMAGE)
-  if [ -f "$TARGET_DIR/$UNPACKED_IMAGE" ] ; then
-	  continue
+LIST=($(find "${SOURCE_DIR}" -type f -name "${PATTERN}.xz"))
+for IMAGE in ${LIST[@]}; do
+
+  UNPACKED_IMAGE=$(basename -s .xz "${IMAGE}")
+  TARGET="${TARGET_DIR}/${UNPACKED_IMAGE}"
+  if [ -f "${TARGET}" ] ; then
+          continue
   fi
-  TARGET="$TARGET_DIR/$UNPACKED_IMAGE"
-  echo_stderr "  Unpacking '$IMAGE' to '$TARGET'"
-  cat $IMAGE | xz -d >"$TARGET.tmp"
-  mv "$TARGET.tmp" "$TARGET"
-done 
 
-MAX=3
-PATTERN="fedora-coreos-*-qemu.x86_64.qcow2"
-echo_stderr "* Cleanup $PATTERN max $MAX files"
-find "${TARGET_DIR}" -maxdepth 1 -name "$PATTERN"| sort -Vr | awk -v MAX=$MAX '{ if ( NR > MAX ) print }' \
+  echo_stderr "  Unpacking '${IMAGE}' to '${TARGET}'"
+
+  xz -dc "${IMAGE}" >"${TARGET}.tmp"
+  mv "${TARGET}.tmp" "${TARGET}"
+done
+
+echo_stderr "* Cleanup ${PATTERN} max ${MAX} files"
+find "${TARGET_DIR}" -maxdepth 1 -name "${PATTERN}"| sort -Vr | awk -v MAX=${MAX} '{ if ( NR > MAX ) print }' \
 | while read -r FILENAME; do rm -f "${FILENAME}" ; done
-
-
