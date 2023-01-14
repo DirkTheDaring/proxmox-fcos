@@ -1,5 +1,6 @@
 - import_tasks: "storage.yml"
 - import_tasks: "network.yml"
+- import_tasks: "hosts.yml"
 - import_tasks: "subscription.yml"
 - import_tasks: "pveedgekernel.yml"
 

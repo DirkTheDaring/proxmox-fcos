@@ -1,5 +1,7 @@
 # remove _offline to overwrite  all networks on your machine (WUHAHA...evil laughter....)
 #
+domain: fritz.box
+
 interfaces_offline:
 - name: ens33
   type: manual
