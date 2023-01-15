@@ -13,7 +13,7 @@ FEDORA_VERSION=$(curl -s "${URL0}" |grep -Po '(?<=href=")[^"]*' |grep -oP "^[0-9
 if [ $FEDORA_VERSION -gt $MAX_FEDORA_VERSION ]; then
   FEDORA_VERSION=$MAX_FEDORA_VERSION
 fi
-exit
+
 URL1=${URL0}${FEDORA_VERSION}/
 LATEST=$(curl -s $URL1|grep -Po '(?<=href=")2[^"]*'|sort -Vr |head -1)
 URL2="${URL1}${LATEST}images/"
