@@ -17,5 +17,10 @@ if [ -n "$CONFIG_FILE" ]; then
     . "$CONFIG_FILE"
 fi
 
-mkdir -p "$FCOS_DIR"
+if [ ! -d "$FCOS_DIR" ]; then
+	echo "directory does not exist: $FCOS_DIR"
+	exit 1
+fi
+
+mkdir -p "$TARGET_DIR"
 $(dirname "$0")/fcos-unpack.sh "$FCOS_DIR" "$TARGET_DIR"
