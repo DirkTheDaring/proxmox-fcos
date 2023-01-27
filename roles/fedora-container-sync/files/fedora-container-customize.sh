@@ -63,7 +63,7 @@ tar --wildcards -xOvJf "${IMAGE}" '*/layer\.tar'\
 
 cp "${RESOLV_FILE}" "${ROOT_DIR}/etc/resolv.conf"
 chroot "${ROOT_DIR}" dnf update -y
-chroot "${ROOT_DIR}" dnf install -y openssh-server systemd-networkd iproute procps-ng sssd-client
+chroot "${ROOT_DIR}" dnf install -y openssh-server systemd-networkd iproute procps-ng sssd-client which
 chroot "${ROOT_DIR}" dnf clean all
 chroot "${ROOT_DIR}" systemctl enable sshd
 chroot "${ROOT_DIR}" systemctl enable systemd-networkd
