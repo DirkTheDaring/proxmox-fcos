@@ -17,5 +17,8 @@
 
 - import_tasks: "resolv.yml"
 - import_tasks: "ntp.yml"
+
+- import_tasks: "cpu-models.yml"
+
 #- import_tasks: "cacertificates.yml"
 #- import_tasks: "certificates.yml"

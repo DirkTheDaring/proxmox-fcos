@@ -1,0 +1,9 @@
+- name: "Custom CPU model configuration file"
+  copy:
+    src:  "{{ item }}"
+    dest: "/etc/pve/virtual-guest/{{ item|basename }}"
+    owner: root
+    group: www-data
+    #    mode:  0644
+  loop:
+  - "cpu-models.conf"
