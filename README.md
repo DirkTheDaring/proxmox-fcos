@@ -1,3 +1,6 @@
+# SETUP
+sudo dnf install -y python3-netaddr
+
 # proxmox-fcos
 proxmox fedora coreos installer
 
@@ -19,7 +22,7 @@ run-name-stage     -e 'flash=*' -e 'destroy=true' -e 'fcos_channel=testing'
 # use tagging to just starte one module
 run-name-stage --tags=packages
 run-name-stage --tags=quirks
-
+run-name-stage --tags=highavailability
 
 
 ### pve-edge-kernel

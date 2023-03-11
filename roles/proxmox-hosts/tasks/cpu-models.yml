@@ -1,9 +1,7 @@
 - name: "Custom CPU model configuration file"
-  copy:
+  ansible.builtin.copy:
     src:  "{{ item }}"
     dest: "/etc/pve/virtual-guest/{{ item|basename }}"
-    owner: root
-    group: www-data
-    #    mode:  0644
+    # due to pve file system no setting of owner,group,mode
   loop:
   - "cpu-models.conf"

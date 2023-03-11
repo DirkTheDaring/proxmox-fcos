@@ -117,6 +117,7 @@ class InventoryModule(BaseInventoryPlugin):
         param = '-n' if platform.system().lower()=='windows' else '-c'
 
         procs = []
+        #print(group.host_names)
         for host_name in group.host_names:
             host_vars = self.get_all_host_vars(
                 inventory.hosts[host_name], loader, sources
@@ -125,17 +126,18 @@ class InventoryModule(BaseInventoryPlugin):
                 target_host = host_vars['ansible_host']
             else:
                 target_host = host_name
-            command = ['ping', param, '1', target_host]
+            command = ['ping', param, '2', target_host]
             proc = Popen(command, stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
             procs.append([host_name,command,proc])
 
         result = []
+        #print(procs)
         for item in procs:
            host_name, command, proc = item
            proc.wait()
            if proc.returncode == 0:
                result.append(host_name)
-
+        #print(result)
         return result
 
 

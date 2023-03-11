@@ -5,7 +5,7 @@
   hosts:
   - localhost
 
-- name: proxmox flash fcos
+- name: Configure proxmox hosts
   roles:
   - proxmox-hosts
   hosts:
